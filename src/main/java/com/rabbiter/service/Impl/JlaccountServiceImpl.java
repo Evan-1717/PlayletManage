@@ -363,20 +363,14 @@ public class JlaccountServiceImpl extends ServiceImpl<JlaccountMapper, JlPromoti
         List<String> nameList = new ArrayList<>();
 
         String media_source = param.get("radio").toString();
-        String microGame = "";
-        String ad_callback = "";
-        String distributor = "";
-        String recharge_template = "";
+        String microGame;
+        String distributor;
         if (media_source.equals("1")) {
             microGame = "抖小";
-            ad_callback = "ad_callback_b";
             distributor = "distributorId_b";
-            recharge_template = "recharge_template_b";
         } else {
             microGame = "微小";
-            ad_callback = "ad_callback_w";
             distributor = "distributorId_w";
-            recharge_template = "recharge_template_w";
         }
         Map<String, String> distributorInfo = tomatoMapper.selectDistributorById((String)param.get(distributor)).get(0);
         distributorInfo.put("book_id", param.get("video_id").toString());
@@ -385,7 +379,6 @@ public class JlaccountServiceImpl extends ServiceImpl<JlaccountMapper, JlPromoti
         List<Map<String, Object>> ad_callback_config_id_list = tomatoService.getAdCallback(distributorInfo);
         distributorInfo.put("ad_callback_config_id", getIdFromList(ad_callback_config_id_list, "config_name", "全回传", "config_id"));
         List<Map<String, Object>> recharge_template_id_list = tomatoService.getRechargeTemplate(distributorInfo);
-        distributorInfo.put("business", recharge_template);
         String creater = param.get("creater").toString();
         for (int i = 0; i< advertiserIdList.size(); i++) {
             param.put("advertiser_id", advertiserIdList.get(i));
@@ -409,13 +402,11 @@ public class JlaccountServiceImpl extends ServiceImpl<JlaccountMapper, JlPromoti
             promotionInfo.put("create_time", Utils.getTime9());
             tomatoService.savePromotion(promotionInfo);
             param.put("promotion_url", promotionInfo.get("promotion_url"));
-//            param.put("promotion_url", "pages/theatre/index?code=PI0Y5B8PMX5&aid=40013835&item_source=1&media_source=1&tt_album_id=7497564935317914131&tt_episode_id=7497564958437376546&click_id=__CLICKID__&request_id=__REQUESTID__&mid1=__MID1__&mid2=__MID2__&mid3=__MID3__&mid4=__MID4__&mid5=__MID5__");
 
             param.put("creater", creater);
             for(int x=0; x< Integer.parseInt(param.get("project_number").toString()); x++) {
                 param.put("time", Utils.getTime9());
                 String projectId = createProject(param, advertiserInfo, bidStrategyVal);
-//                String projectId = "7498773275038040075";//7498371027111804982
                 param.put("project_id", projectId);
                 jlaccountMapper.saveJlProject(param);
                 for (int j = 0; j < Integer.parseInt(param.get("jlpromotion_number").toString()); j++) {
