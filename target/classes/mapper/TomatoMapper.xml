@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rabbiter.mapper.TomatoMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.rabbiter.entity.TomatoPromotion">
+        <id column="id" property="id" />
+        <result column="date" property="date"  jdbcType="VARCHAR" javaType="String"/>
+        <result column="fanqiemianfeiexpend" property="fanqiemianfeiexpend" jdbcType="VARCHAR" javaType="float"/>
+        <result column="fanqiemianfeirecharge" property="fanqiemianfeirecharge" jdbcType="VARCHAR" javaType="float"/>
+        <result column="fanqiemianfeiroi" property="fanqiemianfeiroi" jdbcType="VARCHAR" javaType="float"/>
+        <result column="fanqiemianfeiprofit" property="fanqiemianfeiprofit" jdbcType="VARCHAR" javaType="float"/>
+        <result column="fanqiemianfeimargin" property="fanqiemianfeimargin" jdbcType="VARCHAR" javaType="float"/>
+        <result column="fanqiefufeiexpend" property="fanqiefufeiexpend" jdbcType="VARCHAR" javaType="float"/>
+        <result column="fanqiefufeirecharge" property="fanqiefufeirecharge" jdbcType="VARCHAR" javaType="float"/>
+        <result column="fanqiefufeiroi" property="fanqiefufeiroi" jdbcType="VARCHAR" javaType="float"/>
+        <result column="fanqiefufeiprofit" property="fanqiefufeiprofit" jdbcType="VARCHAR" javaType="float"/>
+        <result column="fanqiefufeimargin" property="fanqiefufeimargin" jdbcType="VARCHAR" javaType="float"/>
+        <result column="zongmargin" property="zongmargin" jdbcType="VARCHAR" javaType="float"/>
+        <result column="zongroi" property="zongroi" jdbcType="VARCHAR" javaType="float"/>
+        <result column="zongprofit" property="zongprofit" jdbcType="VARCHAR" javaType="float"/>
+        <result column="zongexpend" property="zongexpend" jdbcType="VARCHAR" javaType="float"/>
+        <result column="time" property="time" jdbcType="VARCHAR" javaType="String"/>
+        <result column="creater" property="creater" jdbcType="VARCHAR" javaType="String"/>
+        <result column="role" property="role" jdbcType="VARCHAR" javaType="String"/>
+        <result column="location" property="location" javaType="java.util.List" typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
+        <result column="content" property="content" javaType="java.util.List" typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
+        <result column="hiredate" property="hiredate" jdbcType="VARCHAR" javaType="String"/>
+    </resultMap>
+
+
+
+    <select id="selectCodeInfo" resultType="java.util.Map">
+        SELECT code, code_name FROM `code_info` where 1=1
+        <if test="business!=null and business!=''">
+            and business = #{business}
+        </if>
+        <if test="code_name!=null and code_name!=''">
+            and code_name = #{code_name}
+        </if>
+    </select>
+
+    <select id="selectDistributorById" resultType="java.util.Map">
+        select * from `distributor` where distributor_id = #{distributorId}
+    </select>
+
+    <insert id="savePromotion" parameterType="java.util.Map">
+        INSERT INTO automation_promotion (promotion_id, promotion_name, package_name, promotion_url, promotion_http_url,
+        distributor_id, wx_app_package_id, creater, create_time, book_id, media_source,
+        ad_callback_config_id, recharge_template_id, price) VALUES
+            (#{promotion_id}, #{promotion_name}, #{package_name}, #{promotion_url},  #{promotion_http_url},
+            #{distributor_id}, #{wx_app_package_id}, #{creater}, #{create_time}, #{book_id},
+            #{media_source}, #{ad_callback_config_id}, #{recharge_template_id}, #{price})
+    </insert>
+</mapper>
+

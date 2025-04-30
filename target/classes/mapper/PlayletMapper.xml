@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rabbiter.mapper.PlayletMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.rabbiter.entity.Playlet">
+        <id column="id" property="id" />
+        <result column="playlet_name" property="playlet_name"  jdbcType="VARCHAR" javaType="String"/>
+        <result column="playlet_id" property="playlet_id" jdbcType="VARCHAR" javaType="String"/>
+        <result column="release_time" property="release_time" jdbcType="VARCHAR" javaType="String"/>
+        <result column="abstract_info" property="abstract_info" jdbcType="VARCHAR" javaType="String"/>
+        <result column="author" property="author" jdbcType="VARCHAR" javaType="String"/>
+        <result column="category" property="category" jdbcType="VARCHAR" javaType="String"/>
+        <result column="chapter_amount" property="chapter_amount" jdbcType="VARCHAR" javaType="String"/>
+        <result column="creation_status" property="creation_status" jdbcType="VARCHAR" javaType="String"/>
+        <result column="free_chapter_count" property="free_chapter_count" jdbcType="VARCHAR" javaType="String"/>
+        <result column="genre" property="genre" jdbcType="VARCHAR" javaType="String"/>
+        <result column="length_type" property="length_type" jdbcType="VARCHAR" javaType="String"/>
+        <result column="price" property="price" jdbcType="VARCHAR" javaType="String"/>
+        <result column="start_percentage" property="start_percentage" jdbcType="VARCHAR" javaType="String"/>
+        <result column="thumb_url" property="thumb_url" jdbcType="VARCHAR" javaType="String"/>
+        <result column="word_count" property="word_count" jdbcType="VARCHAR" javaType="String"/>
+        <result column="promotion_times" property="promotion_times" jdbcType="VARCHAR" javaType="String"/>
+    </resultMap>
+
+    <select id="pageCC" resultMap="BaseResultMap">
+        select *
+        from playlet
+        ${ew.customSqlSegment}
+    </select>
+
+    <select id="selectrecord" resultType="com.rabbiter.entity.Playlet">
+        select *
+        from playlet
+        ${ew.customSqlSegment}
+    </select>
+
+    <insert id="savePlaylet" parameterType="com.rabbiter.entity.Playlet">
+        INSERT INTO playlet (playlet_name, playlet_id, release_time, abstract_info, author, category, chapter_amount,
+        creation_status, free_chapter_count, genre, length_type, price, start_percentage, thumb_url, word_count, promotion_times) VALUES
+            (#{playlet_name}, #{playlet_id}, #{release_time}, #{abstract_info}, #{author}, #{category}, #{chapter_amount},
+            #{creation_status}, #{free_chapter_count}, #{genre}, #{length_type}, #{price}, #{start_percentage}, #{thumb_url}, #{word_count}, #{promotion_times})
+    </insert>
+
+    <select id="calculateRecharge" resultType="java.lang.Double" parameterType="java.util.Map">
+        SELECT SUM(pay_amount)
+        from `${tableName}`
+        where promotion_id in (
+            SELECT promotion_id from promotion
+            where user_name=#{user_name} and mini_program_name =#{mini_program_name}
+        )
+    </select>
+
+    <select id="getdistributorIdBydistributor" resultType="java.lang.String" parameterType="java.util.Map">
+        SELECT distributor_id FROM `distributor` where account = #{distributor}
+
+
+    </select>
+
+    <select id="getdistributorIdInfo" resultType="java.util.Map" parameterType="java.util.Map">
+        SELECT * FROM `distributor` where distributor_id = #{distributorId}
+    </select>
+</mapper>
+

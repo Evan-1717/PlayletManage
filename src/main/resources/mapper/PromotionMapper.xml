@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rabbiter.mapper.PromotionMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.rabbiter.entity.Promotion">
+        <id column="id" property="id" />
+        <result column="promotion_id" property="promotion_id"  jdbcType="VARCHAR" javaType="String"/>
+        <result column="promotion_name" property="promotion_name" jdbcType="VARCHAR" javaType="String"/>
+        <result column="package_name" property="package_name" jdbcType="VARCHAR" javaType="String"/>
+        <result column="promotion_url" property="promotion_url" jdbcType="VARCHAR" javaType="String"/>
+        <result column="promotion_http_url" property="promotion_http_url" jdbcType="VARCHAR" javaType="String"/>
+        <result column="distributor_id" property="distributor_id" jdbcType="VARCHAR" javaType="String"/>
+        <result column="wx_app_package_id" property="wx_app_package_id" jdbcType="VARCHAR" javaType="String"/>
+        <result column="playlet_id" property="playlet_id" jdbcType="VARCHAR" javaType="String"/>
+        <result column="recharge" property="recharge" jdbcType="VARCHAR" javaType="String"/>
+        <result column="creater" property="creater" jdbcType="VARCHAR" javaType="String"/>
+        <result column="create_time" property="create_time" jdbcType="VARCHAR" javaType="String"/>
+    </resultMap>
+
+    <select id="pageCC" resultMap="BaseResultMap">
+        select *
+        from automation_promotion
+        ${ew.customSqlSegment}
+    </select>
+
+    <select id="selectrecord" resultType="com.rabbiter.entity.Promotion">
+        select *
+        from automation_promotion
+        ${ew.customSqlSegment}
+    </select>
+
+    <insert id="saveAutomationPromotion" parameterType="com.rabbiter.entity.Promotion">
+        INSERT INTO automation_promotion (distributor_id, promotion_id, promotion_name, promotion_url, promotion_http_url,
+         package_name, wx_app_package_id,playlet_id, recharge, creater, create_time) VALUES
+            (#{distributor_id}, #{promotion_id}, #{promotion_name}, #{promotion_url}, #{promotion_http_url},
+            #{package_name}, #{wx_app_package_id}, #{playlet_id}, #{recharge}, #{creater}, #{create_time})
+    </insert>
+</mapper>
+

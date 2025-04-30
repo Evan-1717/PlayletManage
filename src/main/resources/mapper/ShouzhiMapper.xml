@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rabbiter.mapper.ShouzhiMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.rabbiter.entity.Shouzhi">
+        <id column="id" property="id" />
+        <result column="date" property="date"  jdbcType="VARCHAR" javaType="String"/>
+        <result column="fanqiedouxiaoexpend" property="fanqiedouxiaoexpend" jdbcType="VARCHAR" javaType="float"/>
+        <result column="dianzhongexpend" property="dianzhongexpend" jdbcType="VARCHAR" javaType="float"/>
+        <result column="fanqieweixiaoexpend" property="fanqieweixiaoexpend" jdbcType="VARCHAR" javaType="float"/>
+        <result column="fanqiedouxiaorecharge" property="fanqiedouxiaorecharge" jdbcType="VARCHAR" javaType="float"/>
+        <result column="dianzhongrecharge" property="dianzhongrecharge" jdbcType="VARCHAR" javaType="float"/>
+        <result column="fanqieweixiaorecharge" property="fanqieweixiaorecharge" jdbcType="VARCHAR" javaType="float"/>
+        <result column="fanqiedouxiaoroi" property="fanqiedouxiaoroi" jdbcType="VARCHAR" javaType="float"/>
+        <result column="dianzhongroi" property="dianzhongroi" jdbcType="VARCHAR" javaType="float"/>
+        <result column="fanqieweixiaoroi" property="fanqieweixiaoroi" jdbcType="VARCHAR" javaType="float"/>
+        <result column="zongroi" property="zongroi" jdbcType="VARCHAR" javaType="float"/>
+        <result column="fanqiedouxiaoprofit" property="fanqiedouxiaoprofit" jdbcType="VARCHAR" javaType="float"/>
+        <result column="dianzhongprofit" property="dianzhongprofit" jdbcType="VARCHAR" javaType="float"/>
+        <result column="fanqieweixiaoprofit" property="fanqieweixiaoprofit" jdbcType="VARCHAR" javaType="float"/>
+        <result column="zongprofit" property="zongprofit" jdbcType="VARCHAR" javaType="float"/>
+        <result column="zongexpend" property="zongexpend" jdbcType="VARCHAR" javaType="float"/>
+        <result column="fanqiedouxiaomargin" property="fanqiedouxiaomargin" jdbcType="VARCHAR" javaType="float"/>
+        <result column="dianzhongmargin" property="dianzhongmargin" jdbcType="VARCHAR" javaType="float"/>
+        <result column="fanqieweixiaomargin" property="fanqieweixiaomargin" jdbcType="VARCHAR" javaType="float"/>
+        <result column="fanqiemianfeiexpend" property="fanqiemianfeiexpend" jdbcType="VARCHAR" javaType="float"/>
+        <result column="fanqiemianfeirecharge" property="fanqiemianfeirecharge" jdbcType="VARCHAR" javaType="float"/>
+        <result column="fanqiemianfeiroi" property="fanqiemianfeiroi" jdbcType="VARCHAR" javaType="float"/>
+        <result column="fanqiemianfeiprofit" property="fanqiemianfeiprofit" jdbcType="VARCHAR" javaType="float"/>
+        <result column="fanqiemianfeimargin" property="fanqiemianfeimargin" jdbcType="VARCHAR" javaType="float"/>
+        <result column="meiguangexpend" property="meiguangexpend" jdbcType="VARCHAR" javaType="float"/>
+        <result column="meiguangrecharge" property="meiguangrecharge" jdbcType="VARCHAR" javaType="float"/>
+        <result column="meiguangroi" property="meiguangroi" jdbcType="VARCHAR" javaType="float"/>
+        <result column="meiguangmargin" property="meiguangmargin" jdbcType="VARCHAR" javaType="float"/>
+        <result column="meiguangprofit" property="meiguangprofit" jdbcType="VARCHAR" javaType="float"/>
+        <result column="chumoexpend" property="chumoexpend" jdbcType="VARCHAR" javaType="float"/>
+        <result column="chumorecharge" property="chumorecharge" jdbcType="VARCHAR" javaType="float"/>
+        <result column="chumoroi" property="chumoroi" jdbcType="VARCHAR" javaType="float"/>
+        <result column="chumomargin" property="chumomargin" jdbcType="VARCHAR" javaType="float"/>
+        <result column="chumoprofit" property="chumoprofit" jdbcType="VARCHAR" javaType="float"/>
+        <result column="zongmargin" property="zongmargin" jdbcType="VARCHAR" javaType="float"/>
+        <result column="time" property="time" jdbcType="VARCHAR" javaType="String"/>
+        <result column="creater" property="creater" jdbcType="VARCHAR" javaType="String"/>
+        <result column="role" property="role" jdbcType="VARCHAR" javaType="String"/>
+        <result column="location" property="location" javaType="java.util.List" typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
+        <result column="content" property="content" javaType="java.util.List" typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
+        <result column="hiredate" property="hiredate" jdbcType="VARCHAR" javaType="String"/>
+    </resultMap>
+
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, name, remark
+    </sql>
+
+    <select id="pageCC" resultMap="BaseResultMap">
+        select shouzhi.*, user.role role, user.location location, user.content content, user.hiredate hiredate
+        from shouzhi
+        JOIN user ON shouzhi.creater = user.name
+        ${ew.customSqlSegment}
+    </select>
+
+    <select id="selectrecord" resultType="com.rabbiter.entity.Shouzhi1">
+        select shouzhi.*, user.role role, REPLACE(user.location, "\"", "") location, REPLACE(user.content, "\"", "") content, user.hiredate hiredate
+        from shouzhi
+        JOIN user ON shouzhi.creater = user.name
+        ${ew.customSqlSegment}
+    </select>
+
+    <insert id="batchInsertOrder" parameterType="map">
+        INSERT INTO ${tableName} (column1, column2) VALUES
+        <foreach collection="orderList" item="userPaidOrder" separator=",">
+            (#{property1}, #{property2})
+        </foreach>
+    </insert>
+
+    <select id="calculateRecharge" resultType="java.lang.Double" parameterType="java.util.Map">
+        SELECT SUM(pay_amount)
+        from `${tableName}`
+        where promotion_id in (
+            SELECT promotion_id from promotion
+            where user_name=#{user_name} and mini_program_name =#{mini_program_name}
+        )
+    </select>
+
+</mapper>
+
