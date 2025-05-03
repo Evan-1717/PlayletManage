@@ -4,6 +4,7 @@ import com.alibaba.excel.EasyExcel;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
@@ -238,7 +239,7 @@ public class JlaccountServiceImpl extends ServiceImpl<JlaccountMapper, JlPromoti
                 .encode(StandardCharsets.UTF_8)
                 .build()
                 .toUri();
-        String newName  = advertiserInfo.get("name").toString().split("-")[2]
+        String newName  = params.get("promotion_name").toString().split("-")[2]
                 + UUID.randomUUID().toString().substring(0, 8);
         params.put("name", newName);
 
@@ -382,7 +383,7 @@ public class JlaccountServiceImpl extends ServiceImpl<JlaccountMapper, JlPromoti
         String creater = param.get("creater").toString();
         for (int i = 0; i< advertiserIdList.size(); i++) {
             param.put("advertiser_id", advertiserIdList.get(i));
-            Map<String, Object> advertiserInfo= getAdvertiserInfo(param, advertiserIdList.get(i));
+            Map<String, Object> advertiserInfo= getAdvertiserInfo(param);
 
             String recharge_template_val = ((List<String>)param.get("bid_strategy")).get(i);
             String bidStrategyVal = Constant.BID_STRATEGY_MAP.get(recharge_template_val);
@@ -393,6 +394,7 @@ public class JlaccountServiceImpl extends ServiceImpl<JlaccountMapper, JlPromoti
             distributorInfo.put("media_source", media_source);
             nameList.add(name);
             distributorInfo.put("promotion_name", name);
+            param.put("promotion_name", name);
             distributorInfo.put("advertiser_id", advertiserIdList.get(i));
             updateAdvertiser(param, distributorInfo);
             distributorInfo.put("price", bidStrategyVal.split("&")[2]);
@@ -407,6 +409,9 @@ public class JlaccountServiceImpl extends ServiceImpl<JlaccountMapper, JlPromoti
             for(int x=0; x< Integer.parseInt(param.get("project_number").toString()); x++) {
                 param.put("time", Utils.getTime9());
                 String projectId = createProject(param, advertiserInfo, bidStrategyVal);
+                if(StringUtils.isEmpty(projectId)) {
+                    continue;
+                }
                 param.put("project_id", projectId);
                 jlaccountMapper.saveJlProject(param);
                 for (int j = 0; j < Integer.parseInt(param.get("jlpromotion_number").toString()); j++) {
@@ -429,7 +434,7 @@ public class JlaccountServiceImpl extends ServiceImpl<JlaccountMapper, JlPromoti
                 .build()
                 .toUri();
         String advertiserId = advertiserInfo.get("id").toString();
-        String name = advertiserInfo.get("name").toString().split("-")[2]
+        String name = params.get("promotion_name").toString().split("-")[2]
                 + UUID.randomUUID().toString().substring(0, 8);
         params.put("name", name);
         Map<String, Object> body = new HashMap() {
@@ -507,14 +512,15 @@ public class JlaccountServiceImpl extends ServiceImpl<JlaccountMapper, JlPromoti
         return "";
     }
 
-    private Map<String, Object> getAdvertiserInfo(Map<String, Object> params, String advertiser_id){
+    @Override
+    public Map<String, Object> getAdvertiserInfo(Map<String, Object> params){
         URI uri = UriComponentsBuilder.fromHttpUrl("https://ad.oceanengine.com/open_api/2/advertiser/info/")
                 .encode(StandardCharsets.UTF_8)
                 .build()
                 .toUri();
         Map data = new HashMap(){
             {
-                put("advertiser_ids", new Long[] {Long.parseLong(advertiser_id)});
+                put("advertiser_ids", new Long[] {Long.parseLong(params.get("advertiser_id").toString())});
                 put("fields", new String[] {"id", "name", "status", "company"});
             }
         };
@@ -524,7 +530,7 @@ public class JlaccountServiceImpl extends ServiceImpl<JlaccountMapper, JlPromoti
                 return "GET";
             }
         };
-        httpEntity.setHeader("Access-Token", params.get("accessToken").toString());
+        httpEntity.setHeader("Access-Token", getJlaccount(params.get("jlaccount").toString()));
 
         CloseableHttpResponse response = null;
         CloseableHttpClient client = null;

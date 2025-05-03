@@ -14,7 +14,7 @@ Content-Type: application/json
 
 {
   "appid": "1830365792890956",
-  "authcode": "7a17267bc7a1d7f05187ae6577be5ec3001cb3ee",
+  "authcode": "9952085393f2b3a5b7503b9ee769ba046dc8d35c",
   "secret": "d89f8cae68457fff4b954ffb31c633ab9b794f20"
 }
 
@@ -45,8 +45,8 @@ POST http://localhost:8002/api/jlaccount/getVideo
 Content-Type: application/json
 
 {
-  "access_token": "dee57caef991bd8f37fc0aebb8814c01a8e15d22",
-  "advertiser_id" : "1829459264055556"
+  "access_token": "cfa0e89d98b0c1a4dd629816f695d347a3e50336",
+  "advertiser_id" : "1830643983740938"
 }
 
 ###
@@ -97,7 +97,7 @@ POST http://localhost:8002/api/jlaccount/getPromotion
 Content-Type: application/json
 
 {
-  "access_token": "7b7e5bfd54e760321aecb8b30affbc1d453c2dc5",
+  "access_token": "70837b2e7de85ae396b3b6f4f94bb9d28e443db8",
   "advertiser_id" : "1829468454821898"
 }
 

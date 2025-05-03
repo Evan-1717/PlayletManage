@@ -140,6 +140,18 @@ public class JlaccountController {
         return res.size() > 0 ? Result.success(res) : Result.fail();
     }
 
+    /**
+     * 获取视频列表
+     *
+     * @param params:Args in JSON format
+     * @return Response in JSON format
+     */
+    @PostMapping("/getAdvertiserInfo")
+    public Result getAdvertiserInfo(@RequestBody Map<String, Object> params){
+        Map<String, Object> res = jlaccountService.getAdvertiserInfo(params);
+        return res.size() > 0 ? Result.success(res) : Result.fail();
+    }
+
     /*
      * 模糊查询：根据输入查询仓库并以分页的形式展示
      * @author rabbiter

@@ -34,4 +34,6 @@ public interface JlaccountService extends IService<JlPromotion> {
     void saveJlaccount(Map<String, String> map);
 
     String getJlaccount(String account);
+
+    Map<String, Object> getAdvertiserInfo(Map<String, Object> params);
 }
