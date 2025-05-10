@@ -112,7 +112,7 @@ public class TomatoServiceImpl extends ServiceImpl<TomatoMapper, TomatoPromotion
                 put("ad_callback_config_id", Long.parseLong(params.get("ad_callback_config_id")));
                 put("recharge_template_id", Long.parseLong(params.get("recharge_template_id")));
                 put("pack_strategy_status", 1);
-                put("start_chapter", 10);
+                put("start_chapter", Integer.parseInt(params.get("start_chapter")));
                 put("price", params.get("price"));
             }
         };

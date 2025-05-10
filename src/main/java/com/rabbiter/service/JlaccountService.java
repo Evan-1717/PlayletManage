@@ -27,9 +27,9 @@ public interface JlaccountService extends IService<JlPromotion> {
 
     IPage listPageProject(IPage<Map<String, String>> page);
 
-    void autoCreatePromotion(Map<String, Object> params);
+    Map<String, String> autoCreatePromotion(Map<String, Object> params);
 
-    List<Map<String, Object>> getVideoList(Map<String, Object> params);
+    Map<String, Object> bindVideo(Map<String, Object> params);
 
     void saveJlaccount(Map<String, String> map);
 

@@ -14,7 +14,7 @@ Content-Type: application/json
 
 {
   "appid": "1830365792890956",
-  "authcode": "9952085393f2b3a5b7503b9ee769ba046dc8d35c",
+  "authcode": "4b5fbd37a6e13a6802c7eecc3b7c2b794ab13c38",
   "secret": "d89f8cae68457fff4b954ffb31c633ab9b794f20"
 }
 
@@ -35,18 +35,19 @@ Content-Type: application/json
 
 {
   "appid": "1830365792890956",
-  "refreshtoken": "1eeee1bfe14578f0ac4ac304f3f95e343afea3e5",
+  "refreshtoken": "df339c47b0ec12f8436a946aaafa939c6916c7de",
   "secret": "d89f8cae68457fff4b954ffb31c633ab9b794f20"
 }
 
 ###
 
+
 POST http://localhost:8002/api/jlaccount/getVideo
 Content-Type: application/json
 
 {
-  "access_token": "cfa0e89d98b0c1a4dd629816f695d347a3e50336",
-  "advertiser_id" : "1830643983740938"
+  "access_token": "251ed0f011052878aea268bfbd3ca19818e5dfa1",
+  "advertiser_id" : "1830369387050058"
 }
 
 ###
@@ -55,8 +56,17 @@ POST http://localhost:8002/api/jlaccount/getImage
 Content-Type: application/json
 
 {
-  "access_token": "dee57caef991bd8f37fc0aebb8814c01a8e15d22",
+  "access_token": "e134836bf440406bffbbd67bcb942b38ded37ab8",
   "advertiser_id" : "1829455239457027"
+}
+
+###
+
+POST http://localhost:8002/api/jlaccount/getInfo
+Content-Type: application/json
+
+{
+  "access_token": "e134836bf440406bffbbd67bcb942b38ded37ab8"
 }
 
 ###
@@ -65,7 +75,7 @@ POST http://localhost:8002/api/jlaccount/getCarousel
 Content-Type: application/json
 
 {
-  "access_token": "dee57caef991bd8f37fc0aebb8814c01a8e15d22",
+  "access_token": "e134836bf440406bffbbd67bcb942b38ded37ab8",
   "advertiser_id" : "1829468342951300"
 }
 
@@ -75,7 +85,7 @@ POST http://localhost:8002/api/jlaccount/getCarouselAd
 Content-Type: application/json
 
 {
-  "access_token": "dee57caef991bd8f37fc0aebb8814c01a8e15d22",
+  "access_token": "e134836bf440406bffbbd67bcb942b38ded37ab8",
   "advertiser_id" : "1829468342951300",
   "carousel_ids" : "7494621992639266855",
   "carousel_ids1" : "7494622024477163532"
@@ -87,7 +97,7 @@ POST http://localhost:8002/api/jlaccount/getAwemeAuth
 Content-Type: application/json
 
 {
-  "access_token": "dee57caef991bd8f37fc0aebb8814c01a8e15d22",
+  "access_token": "e134836bf440406bffbbd67bcb942b38ded37ab8",
   "advertiser_id" : "1829468665720323"
 }
 
@@ -107,7 +117,7 @@ POST http://localhost:8002/api/jlaccount/video_cover
 Content-Type: application/json
 
 {
-  "access_token": "dee57caef991bd8f37fc0aebb8814c01a8e15d22",
+  "access_token": "e134836bf440406bffbbd67bcb942b38ded37ab8",
   "advertiser_id" : "1829468665720323",
   "video_id": "v03033g10000d00rtffog65h88vh0ljg"
 }
@@ -118,7 +128,7 @@ POST http://localhost:8002/api/jlaccount/getMicroApp_test
 Content-Type: application/json
 
 {
-  "access_token": "dee57caef991bd8f37fc0aebb8814c01a8e15d22",
+  "access_token": "e134836bf440406bffbbd67bcb942b38ded37ab8",
   "advertiser_id" : "1829468454821898"
 }
 
@@ -128,8 +138,8 @@ POST http://localhost:8002/api/jlaccount/getAvailables_test
 Content-Type: application/json
 
 {
-  "access_token": "dee57caef991bd8f37fc0aebb8814c01a8e15d22",
-  "advertiser_id" : "1829468454821898"
+  "access_token": "e134836bf440406bffbbd67bcb942b38ded37ab8",
+  "advertiser_id" : "1830643839405063"
 }
 
 ###
@@ -138,9 +148,8 @@ POST http://localhost:8002/api/jlaccount/getDpaDetail_test
 Content-Type: application/json
 
 {
-  "access_token": "dee57caef991bd8f37fc0aebb8814c01a8e15d22",
-  "advertiser_id" : "1829468454821898",
-  "product_platform_id" : "1699307224909595"
+  "access_token": "e134836bf440406bffbbd67bcb942b38ded37ab8",
+  "advertiser_id" : "1830435021693191"
 }
 
 ###
@@ -149,7 +158,7 @@ POST http://localhost:8002/api/jlaccount/getProject_test
 Content-Type: application/json
 
 {
-  "access_token": "dee57caef991bd8f37fc0aebb8814c01a8e15d22",
+  "access_token": "e134836bf440406bffbbd67bcb942b38ded37ab8",
   "advertiser_id" : "1829468454821898"
 }
 
@@ -169,8 +178,38 @@ POST http://localhost:8002/api/jlaccount/getCountry_test
 Content-Type: application/json
 
 {
-  "access_token": "dee57caef991bd8f37fc0aebb8814c01a8e15d22",
+  "access_token": "e134836bf440406bffbbd67bcb942b38ded37ab8",
   "advertiser_id" : "1829468665720323"
+}
+
+###
+
+POST http://localhost:8002/api/jlaccount/getBind_test
+Content-Type: application/json
+
+{
+  "access_token": "e134836bf440406bffbbd67bcb942b38ded37ab8",
+  "advertiser_id" : "1829468454821898"
+}
+
+###
+
+POST http://localhost:8002/api/jlaccount/getAvatarUpload_test
+Content-Type: application/json
+
+{
+  "access_token": "e134836bf440406bffbbd67bcb942b38ded37ab8",
+  "advertiser_id" : "1829468454821898"
+}
+
+###
+
+POST http://localhost:8002/api/jlaccount/getAvatarSubmit_test
+Content-Type: application/json
+
+{
+  "access_token": "e134836bf440406bffbbd67bcb942b38ded37ab8",
+  "advertiser_id" : "1825659930906858"
 }
 
 ###
@@ -179,7 +218,7 @@ POST http://localhost:8002/api/jlaccount/getAdmin_test
 Content-Type: application/json
 
 {
-  "access_token": "dee57caef991bd8f37fc0aebb8814c01a8e15d22",
+  "access_token": "e134836bf440406bffbbd67bcb942b38ded37ab8",
   "advertiser_id" : "1829468665720323"
 }
 
@@ -189,8 +228,18 @@ POST http://localhost:8002/api/jlaccount/getAssets_test
 Content-Type: application/json
 
 {
-  "access_token": "dee57caef991bd8f37fc0aebb8814c01a8e15d22",
-  "advertiser_id" : "1829468454821898"
+  "access_token": "e134836bf440406bffbbd67bcb942b38ded37ab8",
+  "advertiser_id" : "1830643928627204"
+}
+
+###
+
+POST http://localhost:8002/api/jlaccount/getAssetConfigs_test
+Content-Type: application/json
+
+{
+  "access_token": "e134836bf440406bffbbd67bcb942b38ded37ab8",
+  "advertiser_id" : "1830643928627204"
 }
 
 ###
@@ -199,7 +248,7 @@ POST http://localhost:8002/api/jlaccount/getMicro_game_test
 Content-Type: application/json
 
 {
-  "access_token": "dee57caef991bd8f37fc0aebb8814c01a8e15d22",
+  "access_token": "e134836bf440406bffbbd67bcb942b38ded37ab8",
   "advertiser_id" : "1829468454821898"
 }
 
@@ -210,8 +259,87 @@ POST http://localhost:8002/api/jlaccount/getWechat_game_test
 Content-Type: application/json
 
 {
-  "access_token": "dee57caef991bd8f37fc0aebb8814c01a8e15d22",
+  "access_token": "e134836bf440406bffbbd67bcb942b38ded37ab8",
   "advertiser_id" : "1829468454821898"
+}
+
+###
+
+POST http://localhost:8002/api/jlaccount/getAvailableEvents_test
+Content-Type: application/json
+
+{
+  "access_token": "e134836bf440406bffbbd67bcb942b38ded37ab8",
+  "advertiser_id" : "1830643928627204"
+}
+
+###
+
+POST http://localhost:8002/api/jlaccount/getCreateAssets_test
+Content-Type: application/json
+
+{
+  "access_token": "e134836bf440406bffbbd67bcb942b38ded37ab8",
+  "advertiser_id" : "1830643928627204"
+}
+
+###
+
+POST http://localhost:8002/api/jlaccount/getCreateEvents_test
+Content-Type: application/json
+
+{
+  "access_token": "e134836bf440406bffbbd67bcb942b38ded37ab8",
+  "advertiser_id" : "1830643928627204"
+}
+
+###
+
+POST http://localhost:8002/api/jlaccount/getCreateMicroApp_test
+Content-Type: application/json
+
+{
+  "access_token": "e134836bf440406bffbbd67bcb942b38ded37ab8",
+  "advertiser_id" : "1830643839405063"
+}
+
+###
+
+POST http://localhost:8002/api/jlaccount/getUpdateMicroApp_test
+Content-Type: application/json
+
+{
+  "access_token": "e134836bf440406bffbbd67bcb942b38ded37ab8",
+  "advertiser_id" : "1830432400447060"
+}
+
+###
+
+POST http://localhost:8002/api/jlaccount/getAssetLink_test
+Content-Type: application/json
+
+{
+  "access_token": "e134836bf440406bffbbd67bcb942b38ded37ab8",
+  "advertiser_id" : "1830432400447060"
+}
+
+###
+
+POST http://localhost:8002/api/jlaccount/shareMicroApp_test
+Content-Type: application/json
+
+{
+  "access_token": "e134836bf440406bffbbd67bcb942b38ded37ab8"
+}
+
+###
+
+POST http://localhost:8002/api/jlaccount/getShareMicroApp_test
+Content-Type: application/json
+
+{
+  "access_token": "e134836bf440406bffbbd67bcb942b38ded37ab8",
+  "advertiser_id" : "1830643839405063"
 }
 
 ###
@@ -220,7 +348,7 @@ POST http://localhost:8002/api/jlaccount/createPromotion_test
 Content-Type: application/json
 
 {
-  "access_token": "dee57caef991bd8f37fc0aebb8814c01a8e15d22",
+  "access_token": "e134836bf440406bffbbd67bcb942b38ded37ab8",
   "advertiser_id" : "1829468665720323"
 }
 
@@ -229,7 +357,7 @@ POST http://localhost:8002/api/jlaccount/getUpdateAdvertiser_test
 Content-Type: application/json
 
 {
-  "access_token": "dee57caef991bd8f37fc0aebb8814c01a8e15d22",
+  "access_token": "e134836bf440406bffbbd67bcb942b38ded37ab8",
   "advertiser_id" : "1829468454821898"
 }
 
@@ -240,9 +368,18 @@ POST http://localhost:8002/api/jlaccount/createProject_test
 Content-Type: application/json
 
 {
-  "access_token": "dee57caef991bd8f37fc0aebb8814c01a8e15d22",
+  "access_token": "e134836bf440406bffbbd67bcb942b38ded37ab8",
   "advertiser_id" : "1829468454821898"
 }
 
 ###
 
+POST http://localhost:8002/api/jlaccount/createDpaProduct_test
+Content-Type: application/json
+
+{
+  "access_token": "e134836bf440406bffbbd67bcb942b38ded37ab8",
+  "advertiser_id" : "1830432400447060"
+}
+
+###

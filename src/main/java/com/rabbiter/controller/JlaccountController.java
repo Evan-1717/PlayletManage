@@ -1,51 +1,44 @@
 package com.rabbiter.controller;
 
-
-import com.alibaba.excel.EasyExcel;
-import com.alibaba.excel.context.AnalysisContext;
-import com.alibaba.excel.metadata.CellExtra;
-import com.alibaba.excel.read.listener.ReadListener;
-import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
 import com.rabbiter.common.QueryPageParam;
 import com.rabbiter.common.Result;
 import com.rabbiter.entity.JlPromotion;
 import com.rabbiter.entity.Jlaccount;
-import com.rabbiter.entity.Shouzhi;
-import com.rabbiter.service.Impl.JlaccountServiceImpl;
 import com.rabbiter.service.JlaccountService;
 import com.rabbiter.util.AccessToken;
 import com.rabbiter.util.Utils;
+import okhttp3.Request;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
+import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.*;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import okhttp3.OkHttpClient;
+import javax.xml.ws.Response;
+import java.io.*;
 import java.net.URI;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.time.Instant;
 import java.util.*;
 import java.util.logging.Logger;
 
@@ -116,15 +109,13 @@ public class JlaccountController {
      */
     @PostMapping("/autoCreatePromotion")
     private Result autoCreatePromotion(@RequestBody Map<String, Object> params){
-        Map<String, String> res = new HashMap<>();
-        res.put("message","OK");
 //        try {
 //            jlaccountService.autoCreatePromotion(params);
 //        } catch (Exception e) {
 //            res.put("message",e.getMessage());
 //            LOGGER.info("autoCreatePromotion fail,message : " + e.toString());
 //        }
-        jlaccountService.autoCreatePromotion(params);
+        Map<String, String> res = jlaccountService.autoCreatePromotion(params);
         return Result.success(res);
     }
 
@@ -134,9 +125,9 @@ public class JlaccountController {
      * @param params:Args in JSON format
      * @return Response in JSON format
      */
-    @PostMapping("/getVideoList")
-    public Result getVideoList(@RequestBody Map<String, Object> params){
-        List<Map<String, Object>> res = jlaccountService.getVideoList(params);
+    @PostMapping("/bindVideo")
+    public Result bindVideo(@RequestBody Map<String, Object> params){
+        Map<String, Object> res = jlaccountService.bindVideo(params);
         return res.size() > 0 ? Result.success(res) : Result.fail();
     }
 
@@ -276,6 +267,34 @@ public class JlaccountController {
      * @param params:Args in JSON format
      * @return Response in JSON format
      */
+    @PostMapping("/getInfo")
+    private String getInfo(@RequestBody Map<String, String> params){
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("Access-Token", params.get("access_token"));
+
+        // 构建带参数的 URI
+        URI uri = UriComponentsBuilder.fromHttpUrl("https://api.oceanengine.com/open_api/2/user/info/")
+                .encode(StandardCharsets.UTF_8)
+                .build()
+                .toUri();
+
+        // 封装请求实体
+        HttpEntity<String> requestEntity = new HttpEntity<>(null, headers);
+
+        ResponseEntity<Map> response = restTemplate.exchange(uri, HttpMethod.GET, requestEntity, Map.class);
+        if (response.getStatusCode() == HttpStatus.OK) {
+            List<Map<String, Object>> resultList = ((Map<String, List<Map<String, Object>>>)response.getBody().get("data")).get("list");
+        }
+        return response.toString();
+    }
+
+    /**
+     * Send GET request
+     *
+     * @param params:Args in JSON format
+     * @return Response in JSON format
+     */
     @PostMapping("/getImage")
     private String getImage(@RequestBody Map<String, String> params){
         HttpHeaders headers = new HttpHeaders();
@@ -376,6 +395,7 @@ public class JlaccountController {
         }
         return response.toString();
     }
+
 
     /**
      * Send GET request
@@ -554,6 +574,39 @@ public class JlaccountController {
      * @param params:Args in JSON format
      * @return Response in JSON format
      */
+    @PostMapping("/getAssetConfigs_test")
+    private String getAssetConfigs_test(@RequestBody Map<String, String> params){
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("Access-Token", params.get("access_token"));
+
+        // 构建带参数的 URI
+        URI uri = UriComponentsBuilder.fromHttpUrl("https://ad.oceanengine.com/open_api/2/event_manager/event_configs/get/")
+                .queryParam("advertiser_id", params.get("advertiser_id"))
+                .queryParam("asset_id", 1831263424525322L)
+                .encode(StandardCharsets.UTF_8)
+                .build()
+                .toUri();
+
+        // 封装请求实体
+        HttpEntity<String> requestEntity = new HttpEntity<>(null, headers);
+
+        // 发送请求
+        ResponseEntity<Map> response = restTemplate.exchange(
+                uri, HttpMethod.GET, requestEntity, Map.class
+        );
+        if (response.getStatusCode() == HttpStatus.OK) {
+            return ((Map<String, List<Map<String, Object>>>)response.getBody().get("data")).get("event_configs").get(0).get("asset_id").toString();
+        }
+        return "";
+    }
+
+    /**
+     * Send GET request
+     *
+     * @param params:Args in JSON format
+     * @return Response in JSON format
+     */
     @PostMapping("/getMicro_game_test")
     private String getMicro_game_test(@RequestBody Map<String, String> params){
         HttpHeaders headers = new HttpHeaders();
@@ -696,7 +749,9 @@ public class JlaccountController {
         // 构建带参数的 URI
         URI uri = UriComponentsBuilder.fromHttpUrl("https://ad.oceanengine.com/open_api/2/dpa/detail/get/")
                 .queryParam("advertiser_id", params.get("advertiser_id"))
-                .queryParam("product_platform_id", params.get("product_platform_id"))
+                .queryParam("product_platform_id", "7281789144008467")
+                .queryParam("page", 1)
+                .queryParam("page_size", 100)
                 .encode(StandardCharsets.UTF_8)
                 .build()
                 .toUri();
@@ -796,6 +851,41 @@ public class JlaccountController {
      * @param params:Args in JSON format
      * @return Response in JSON format
      */
+    @PostMapping("/getAvailableEvents_test")
+    private String getAvailableEvents_test(@RequestBody Map<String, String> params){
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("Access-Token", params.get("access_token"));
+
+        // 构建带参数的 URI
+        URI uri = UriComponentsBuilder.fromHttpUrl("https://ad.oceanengine.com/open_api/2/event_manager/available_events/get/")
+                .queryParam("advertiser_id", params.get("advertiser_id"))
+                .queryParam("asset_id", "1831263424525322")
+                .encode(StandardCharsets.UTF_8)
+                .build()
+                .toUri();
+
+        // 封装请求实体
+        HttpEntity<String> requestEntity = new HttpEntity<>(null, headers);
+
+        // 发送请求
+        ResponseEntity<Map> response = restTemplate.exchange(
+                uri, HttpMethod.GET, requestEntity, Map.class
+        );
+        List<Map<String, Object>> resultList = ((Map<String, List<Map<String, Object>>>)response.getBody().get("data")).get("list");
+        // 处理响应
+        if (response.getStatusCode() == HttpStatus.OK) {
+            System.out.println("Response: " + response.getBody());
+        }
+        return response.toString();
+    }
+
+    /**
+     * Send GET request
+     *
+     * @param params:Args in JSON format
+     * @return Response in JSON format
+     */
     @PostMapping("/getUpdateAdvertiser_test")
     private String getUpdateAdvertiser(@RequestBody Map<String, String> params){
         HttpHeaders headers = new HttpHeaders();
@@ -820,12 +910,101 @@ public class JlaccountController {
      * @param params:Args in JSON format
      * @return Response in JSON format
      */
+    @PostMapping("/getBind_test")
+    private String getBind(@RequestBody Map<String, String> params){
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("Access-Token", params.get("access_token"));
+        String url = "https://ad.oceanengine.com/open_api/2/file/material/bind/";
+        List<Long> advertiser_ids = new ArrayList<>();
+        advertiser_ids.add(1825659930906858L);
+
+        List<String> video_ids = new ArrayList<>();
+        video_ids.add("v0d033g10000d030aovog65u4h56a6j0");
+
+        Map param = new HashMap() {
+            {
+                put("advertiser_id", Long.parseLong(params.get("advertiser_id")));
+                put("target_advertiser_ids", advertiser_ids);
+                put("video_ids", video_ids);
+            }
+        };
+        HttpEntity<Map<String,String>> entity = new HttpEntity<>(param, headers);
+        ResponseEntity<Map> res = restTemplate.exchange(url, HttpMethod.POST, entity, Map.class);
+        return res.getBody().toString();
+    }
+
+
+    /**
+     * Send GET request
+     *
+     * @param params:Args in JSON format
+     * @return Response in JSON format
+     */
+    @PostMapping("/getAvatarUpload_test")
+    private String getAvatarUpload_test(@RequestBody Map<String, String> params){
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+        headers.set("Access-Token", params.get("access_token"));
+        String url = "https://api.oceanengine.com/open_api/2/advertiser/avatar/upload/";
+
+//        Map param = new HashMap() {
+//            {
+//                put("advertiser_id", Long.parseLong(params.get("advertiser_id")));
+//                put("image_file", new File("C:\\Users\\Administrator\\Desktop\\头像(1)\\tx.jpg"));
+//            }
+//        };
+//        HttpEntity<Map<String,String>> entity = new HttpEntity<>(param, headers);
+//        ResponseEntity<Map> res = restTemplate.exchange(url, HttpMethod.POST, entity, Map.class);
+
+
+        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+        body.add("advertiser_id", Long.parseLong(params.get("advertiser_id"))); // 添加普通文本字段
+        body.add("image_file", new FileSystemResource("C:\\Users\\Administrator\\Desktop\\头像(1)\\tx.png")); // 添加文件
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
+
+        // 发送POST请求
+        ResponseEntity<Map> response = restTemplate.exchange(url, HttpMethod.POST, requestEntity, Map.class);
+        return response.getBody().toString();
+    }
+
+    /**
+     * Send GET request
+     *
+     * @param params:Args in JSON format
+     * @return Response in JSON format
+     */
+    @PostMapping("/getAvatarSubmit_test")
+    private String getAvatarSubmit_test(@RequestBody Map<String, String> params){
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("Access-Token", params.get("access_token"));
+        String url = "https://api.oceanengine.com/open_api/2/advertiser/avatar/submit/";
+
+
+        Map param = new HashMap() {
+            {
+                put("advertiser_id", Long.parseLong(params.get("advertiser_id")));
+                put("image_id", "web.business.image/4146451ef8225c0c272cacc0881ac88d");
+            }
+        };
+        HttpEntity<Map<String,String>> entity = new HttpEntity<>(param, headers);
+        ResponseEntity<Map> res = restTemplate.exchange(url, HttpMethod.POST, entity, Map.class);
+        return res.getBody().toString();
+    }
+
+    /**
+     * Send GET request
+     *
+     * @param params:Args in JSON format
+     * @return Response in JSON format
+     */
     @PostMapping("/advertiser_test")
     private String advertiser_test(@RequestBody Map<String, String> params){
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set("Access-Token", params.get("access_token"));
-        List<String> list = new ArrayList<>();
 
         // 构建带参数的 URI
         URI uri = UriComponentsBuilder.fromHttpUrl("https://ad.oceanengine.com/open_api/2/advertiser/info/")
@@ -1090,5 +1269,423 @@ public class JlaccountController {
 
         }
         return response.toString();
+    }
+
+    /**
+     * Send GET request
+     *
+     * @param params:Args in JSON format
+     * @return Response in JSON format
+     */
+    @PostMapping("/getCreateAssets_test")
+    private String getCreateAssets_test(@RequestBody Map<String, String> params){
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("Access-Token", params.get("access_token"));
+
+        // 构建带参数的 URI
+        URI uri = UriComponentsBuilder.fromHttpUrl("https://ad.oceanengine.com/open_api/2/event_manager/assets/create/")
+                .queryParam("advertiser_id", params.get("advertiser_id"))
+                .encode(StandardCharsets.UTF_8)
+                .build()
+                .toUri();
+
+        Map<String, Object> body = new HashMap() {
+            {
+                put("advertiser_id", Long.parseLong(params.get("advertiser_id")));
+                put("asset_type", "MINI_PROGRAME");
+
+                Map<String, Object> mini_program_asset = new HashMap<>();
+                mini_program_asset.put("mini_program_id", "ttb1d2c76f2ee36a0601");
+                mini_program_asset.put("mini_program_name", "鸣宜剧场");
+                mini_program_asset.put("instance_id", 7500578095032778790L);
+                mini_program_asset .put("mini_program_type", "BYTE_APP");
+                put("mini_program_asset",mini_program_asset);
+
+            }
+        };
+
+        // 封装请求实体
+        HttpEntity<Map> requestEntity = new HttpEntity<>(body, headers);
+
+        // 发送请求
+        ResponseEntity<Map> response = restTemplate.exchange(
+                uri, HttpMethod.POST, requestEntity, Map.class
+        );
+
+        // 处理响应
+        if (response.getStatusCode() == HttpStatus.OK) {
+            Map<String, String> result = ((Map<String, Map<String, String>>)response.getBody()).get("data");
+            return result.get("asset_id");
+        }
+        return "";
+    }
+
+    /**
+     * Send GET request
+     *
+     * @param params:Args in JSON format
+     * @return Response in JSON format
+     */
+    @PostMapping("/getCreateEvents_test")
+    private String getCreateEvents_test(@RequestBody Map<String, String> params){
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("Access-Token", params.get("access_token"));
+
+        // 构建带参数的 URI
+        URI uri = UriComponentsBuilder.fromHttpUrl("https://ad.oceanengine.com/open_api/2/event_manager/events/create/")
+                .queryParam("advertiser_id", params.get("advertiser_id"))
+                .encode(StandardCharsets.UTF_8)
+                .build()
+                .toUri();
+
+        Map<String, Object> body = new HashMap() {
+            {
+                put("advertiser_id", Long.parseLong(params.get("advertiser_id")));
+                put("asset_id", 1831263424525322L);
+                put("event_id", 14);
+                put("track_types", new String[]{"MINI_PROGRAME_API"});
+            }
+        };
+
+        // 封装请求实体
+        HttpEntity<Map> requestEntity = new HttpEntity<>(body, headers);
+
+        // 发送请求
+        ResponseEntity<Map> response = restTemplate.exchange(
+                uri, HttpMethod.POST, requestEntity, Map.class
+        );
+
+        body = new HashMap() {
+            {
+                put("advertiser_id", Long.parseLong(params.get("advertiser_id")));
+                put("asset_id", 1831263424525322L);
+                put("event_id", 160);
+                put("track_types", new String[]{"MINI_PROGRAME_API"});
+            }
+        };
+
+        // 封装请求实体
+        requestEntity = new HttpEntity<>(body, headers);
+
+        // 发送请求
+        response = restTemplate.exchange(
+                uri, HttpMethod.POST, requestEntity, Map.class
+        );
+
+        // 处理响应
+        if (response.getStatusCode() == HttpStatus.OK) {
+            Map<String, String> result = ((Map<String, Map<String, String>>)response.getBody()).get("data");
+            return result.get("asset_id");
+        }
+        return "";
+    }
+
+    /**
+     * 创建小程序
+     *
+     * @param params:Args in JSON format
+     * @return Response in JSON format
+     */
+    @PostMapping("/getCreateMicroApp_test")
+    private String getCreateMicroApp_test(@RequestBody Map<String, String> params){
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("Access-Token", params.get("access_token"));
+
+        // 构建带参数的 URI
+        URI uri = UriComponentsBuilder.fromHttpUrl("https://api.oceanengine.com/open_api/v3.0/tools/micro_app/create/")
+                .encode(StandardCharsets.UTF_8)
+                .build()
+                .toUri();
+
+        Map<String, Object> body = new HashMap() {
+            {
+                put("advertiser_id", Long.parseLong(params.get("advertiser_id")));
+                put("app_id", "ttb1d2c76f2ee36a0601");
+                put("remark", "员工名字");
+                put("tag_info", "1050700000");
+
+
+                Map<String, Object> app_page = new HashMap<>();
+                app_page .put("link", "");
+                app_page.put("start_page", "pages/theatre/index");
+                app_page.put("start_param", "code=PI13YMJFMT6&aid=40013835&item_source=1&media_source=1&tt_album_id=7498688530302894632&tt_episode_id=7498688553501671963&click_id=__CLICKID__&request_id=__REQUESTID__&mid1=__MID1__&mid2=__MID2__&mid3=__MID3__&mid4=__MID4__&mid5=__MID5__");
+                app_page .put("link_remark", "测试");
+                put("app_page",app_page);
+
+            }
+        };
+
+        // 封装请求实体
+        HttpEntity<Map> requestEntity = new HttpEntity<>(body, headers);
+
+        // 发送请求
+        ResponseEntity<Map> response = restTemplate.exchange(
+                uri, HttpMethod.POST, requestEntity, Map.class
+        );
+
+        // 处理响应
+        if (response.getStatusCode() == HttpStatus.OK) {
+            Map<String, String> result = ((Map<String, Map<String, String>>)response.getBody()).get("data");
+            return result.get("instance_id");
+        }
+        return "";
+    }
+
+    /**
+     * 共享小程序
+     *
+     * @param params:Args in JSON format
+     * @return Response in JSON format
+     */
+    @PostMapping("/shareMicroApp_test")
+    private String shareMicroApp_test(@RequestBody Map<String, String> params){
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("Access-Token", params.get("access_token"));
+
+        // 构建带参数的 URI
+        URI uri = UriComponentsBuilder.fromHttpUrl("https://api.oceanengine.com/open_api/v3.0/tools/bp_asset_management/share/")
+                .encode(StandardCharsets.UTF_8)
+                .build()
+                .toUri();
+
+        Map<String, Object> body = new HashMap() {
+            {
+                put("organization_id", 1829538761672148L);
+                put("instance_id", 7500891842590965797L);
+                put("asset_type", "BYTED_APPLETS");
+                put("share_mode", "PART");
+
+                List<Map<String, Object>> account_infos = new ArrayList<>();
+                Map<String, Object> account_info = new HashMap<>();
+                account_info .put("account_type", "AD");
+                account_info.put("account_id", 1830643928627204L);
+                account_infos.add(account_info);
+                put("account_infos",account_infos);
+
+            }
+        };
+
+        // 封装请求实体
+        HttpEntity<Map> requestEntity = new HttpEntity<>(body, headers);
+
+        // 发送请求
+        ResponseEntity<Map> response = restTemplate.exchange(
+                uri, HttpMethod.POST, requestEntity, Map.class
+        );
+
+        // 处理响应
+        if (response.getStatusCode() == HttpStatus.OK) {
+            Map<String, String> result = ((Map<String, Map<String, String>>)response.getBody()).get("data");
+            return result.get("instance_id");
+        }
+        return "";
+    }
+
+    /**
+     * 修改小程序
+     *
+     * @param params:Args in JSON format
+     * @return Response in JSON format
+     */
+    @PostMapping("/getUpdateMicroApp_test")
+    private String getUpdateMicroApp_test(@RequestBody Map<String, String> params){
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("Access-Token", params.get("access_token"));
+
+        // 构建带参数的 URI
+        URI uri = UriComponentsBuilder.fromHttpUrl("https://api.oceanengine.com/open_api/v3.0/tools/micro_app/update/")
+                .encode(StandardCharsets.UTF_8)
+                .build()
+                .toUri();
+
+        Map<String, Object> body = new HashMap() {
+            {
+                put("advertiser_id", Long.parseLong(params.get("advertiser_id")));
+                put("instance_id", 7501273705260105779L);
+
+                List<Map<String, Object>> app_page_list = new ArrayList<>();
+                Map<String, Object> app_page = new HashMap<>();
+                app_page.put("link", "");
+                app_page.put("operate_type", "NEW");
+                app_page.put("start_page", "pages/theatre/index");
+                app_page.put("start_param", "code=PI1AIZBD1TM&aid=40013835&item_source=1&media_source=1&tt_album_id=7443669834242228790&tt_episode_id=7443669856429589030&click_id=__CLICKID__&request_id=__REQUESTID__&mid1=__MID1__&mid2=__MID2__&mid3=__MID3__&mid4=__MID4__&mid5=__MID5__");
+                app_page.put("remark", "代码生成小程序链接测试");
+                app_page_list.add(app_page);
+                put("app_page",app_page_list);
+
+                put("tag_info", "1050107001");
+            }
+        };
+
+        // 封装请求实体
+        HttpEntity<Map> requestEntity = new HttpEntity<>(body, headers);
+
+        // 发送请求
+        ResponseEntity<Map> response = restTemplate.exchange(
+                uri, HttpMethod.POST, requestEntity, Map.class
+        );
+
+        // 处理响应
+        if (response.getStatusCode() == HttpStatus.OK) {
+            Map<String, String> result = ((Map<String, Map<String, String>>)response.getBody()).get("data");
+            return result.get("instance_id");
+        }
+        return "";
+    }
+
+    /**
+     * 修改小程序
+     *
+     * @param params:Args in JSON format
+     * @return Response in JSON format
+     */
+    @PostMapping("/getAssetLink_test")
+    private List<Map<String, Object>> getAssetLink_test(@RequestBody Map<String, String> params){
+
+        Long advertiser_id = Long.parseLong(params.get("advertiser_id"));
+        Long instance_id = 7501273705260105779L;
+        int page = 1;
+        int page_size = 100;
+        String myArgs = String.format("{\"advertiser_id\": \"%s\", \"filtering\": {\"instance_id\": %s}, \"page\": \"%s\", \"page_size\": \"%s\"}",advertiser_id, instance_id, page, page_size);
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            URIBuilder ub = new URIBuilder("https://api.oceanengine.com/open_api/v3.0/tools/asset_link/list/");
+            Map< String, Object > map = mapper.readValue(myArgs, Map.class);
+            map.forEach((k, v) -> {
+                try {
+                    ub.addParameter(k, v instanceof String ? (String) v : mapper.writeValueAsString(v));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+            URL url = ub.build().toURL();
+
+            OkHttpClient client = new OkHttpClient().newBuilder().build();
+            Request request = new Request.Builder()
+                    .url(url.toString())
+                    .method("GET", null)
+                    .addHeader("Access-Token", params.get("access_token"))
+                    .build();
+            okhttp3.Response response = client.newCall(request).execute();
+            JSONObject json  = JSONObject.parseObject(response.body().string());
+            return ((Map<String, List<Map<String, Object>>>)json.get("data")).get("list");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+
+    /**
+     * 共享小程序
+     *
+     * @param params:Args in JSON format
+     * @return Response in JSON format
+     */
+    @PostMapping("/getShareMicroApp_test")
+    private String getShareMicroApp_test(@RequestBody Map<String, String> params){
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Access-Token", params.get("access_token"));
+
+        // 构建带参数的 URI
+        URI uri = UriComponentsBuilder.fromHttpUrl("https://api.oceanengine.com/open_api/v3.0/tools/bp_asset_management/share/get/")
+                .queryParam("organization_id", "1829538761672148")
+                .queryParam("asset_type", "BYTED_APPLETS")
+                .queryParam("instance_id", "7500891842590965797")
+                .queryParam("share_type", "GROUP")
+                .encode(StandardCharsets.UTF_8)
+                .build()
+                .toUri();
+
+
+        // 封装请求实体
+        HttpEntity<Map> requestEntity = new HttpEntity<>(null, headers);
+
+        // 发送请求
+        ResponseEntity<Map> response = restTemplate.exchange(
+                uri, HttpMethod.GET, requestEntity, Map.class
+        );
+
+        // 处理响应
+        if (response.getStatusCode() == HttpStatus.OK) {
+            Map<String, String> result = ((Map<String, Map<String, String>>)response.getBody()).get("data");
+            return result.get("instance_id");
+        }
+        return "";
+    }
+
+    /**
+     * 创建DPA商品
+     *
+     * @param params:Args in JSON format
+     * @return Response in JSON format
+     */
+    @PostMapping("/createDpaProduct_test")
+    private String createDpaProduct_test(@RequestBody Map<String, String> params){
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("Access-Token", params.get("access_token"));
+
+        // 构建带参数的 URI
+        URI uri = UriComponentsBuilder.fromHttpUrl("https://ad.oceanengine.com/open_api/2/dpa/product/create/")
+                .encode(StandardCharsets.UTF_8)
+                .build()
+                .toUri();
+
+        Map<String, Object> body = new HashMap() {
+            {
+                put("advertiser_id", Long.parseLong(params.get("advertiser_id")));
+                put("platform_id", 7281789144008467L);
+
+                Map<String, Object> product_info = new HashMap<>();
+                product_info.put("name", "name");
+                product_info.put("image_url", "ad-private-platform-dpa/3528714d7c7df78c5d5db3be4c1c08f8");
+                product_info.put("first_category", "短剧");
+                product_info.put("sub_category", "其他剧情");
+                product_info.put("third_category", "其他");
+                product_info.put("first_category_id", "2019");
+                product_info.put("sub_category_id", "201912");
+                product_info.put("third_category_id", "20191201");
+
+                Map<String, Object> price_info = new HashMap<>();
+                price_info .put("price", 2);
+                product_info.put("price_info", price_info);
+
+                Map<String, Object> profession = new HashMap<>();
+//                profession .put("ad_carrier", "字节小程序");
+                profession .put("micro_app_link", "sslocal://microapp?app_id=ttb1d2c76f2ee36a0601&bdp_log=%7B%22launch_from%22%3A%22ad%22%7D&scene=0&start_page=pages%2Ftheatre%2Findex%3Faid%3D40013835%26click_id%3D__CLICKID__%26code%3DPI18J3KP4Q1%26item_source%3D1%26media_source%3D1%26mid1%3D__MID1__%26mid2%3D__MID2__%26mid3%3D__MID3__%26mid4%3D__MID4__%26mid5%3D__MID5__%26request_id%3D__REQUESTID__%26tt_album_id%3D7501559271721533987%26tt_episode_id%3D7501559294426153507&uniq_id=S2025050900035080919205099614197678089b2896e94674&version=v2&version_type=current&bdpsum=9d90188");
+
+                profession .put("has_paid_content", "1");
+                profession .put("has_motivation_content", "1");
+                profession .put("copyright_owner", "抖音视界有限公司");
+                profession .put("playlet_gender", "3");
+                profession .put("playlet_num", "50");
+                profession .put("playlet_duration", "2");
+                profession .put("start_pay_playlet", "10");
+                profession .put("membership_types", "5");
+                product_info.put("profession", profession);
+                put("product_info", product_info);
+            }
+        };
+
+        // 封装请求实体
+        HttpEntity<Map> requestEntity = new HttpEntity<>(body, headers);
+
+        // 发送请求
+        ResponseEntity<Map> response = restTemplate.exchange(
+                uri, HttpMethod.POST, requestEntity, Map.class
+        );
+
+        // 处理响应
+        if (response.getStatusCode() == HttpStatus.OK) {
+            Map<String, String> result = ((Map<String, Map<String, String>>)response.getBody()).get("data");
+            return result.get("product_id");
+        }
+        return "";
     }
 }
