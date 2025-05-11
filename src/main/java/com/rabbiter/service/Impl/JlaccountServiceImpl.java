@@ -346,8 +346,7 @@ public class JlaccountServiceImpl extends ServiceImpl<JlaccountMapper, JlPromoti
 
         Map<String, String> result = new HashMap<>();
         result.put("message", response.getBody().get("message").toString());
-        System.out.println("Response: " + response.getBody());
-        if ("OK".equals(response.getBody().get("message").toString())) {
+        if ("0".equals(response.getBody().get("code").toString())) {
             Gson gson = new Gson();
             Map<String, Object> content = (((Map<String, Map<String, Object>>)response.getBody()).get("data"));
             params.put("promotion_id", content.get("promotion_id").toString());
@@ -358,6 +357,7 @@ public class JlaccountServiceImpl extends ServiceImpl<JlaccountMapper, JlPromoti
             params.put("product_info_selling_points_json", gson.toJson((List<String>)params.get("product_info_selling_points")));
             jlaccountMapper.saveJlPromotion(params);
         }
+        LOGGER.info("**** createPromotion Response: " + response.getBody());
         return result;
     }
 
@@ -440,6 +440,10 @@ public class JlaccountServiceImpl extends ServiceImpl<JlaccountMapper, JlPromoti
             distributorInfo.put("recharge_template_id", getIdFromList(recharge_template_id_list, "recharge_template_name", recharge_template_val, "recharge_template_id"));
             distributorInfo.put("start_chapter", param.get("start_chapter").toString());
             Map<String, Object> promotionInfo = tomatoService.createPromotion(distributorInfo);
+            if ("4000".equals(promotionInfo.get("code").toString())) {
+                result.put("message", promotionInfo.get("message").toString());
+                return result;
+            }
             promotionInfo.put("creater", creater);
             promotionInfo.put("create_time", Utils.getTime9());
             tomatoService.savePromotion(promotionInfo);
@@ -547,10 +551,11 @@ public class JlaccountServiceImpl extends ServiceImpl<JlaccountMapper, JlPromoti
             System.out.println("Response: " + response.getBody());
         }
 
-        if ("OK".equals(response.getBody().get("message"))) {
+        if ("0".equals(response.getBody().get("code").toString())) {
             Map<String, Object> content = (((Map<String, Map<String, Object>>)response.getBody()).get("data"));
             return content.get("project_id").toString();
         }
+        LOGGER.info("**** createPromotion Response: " + response.getBody());
         return "";
     }
 
@@ -791,7 +796,7 @@ public class JlaccountServiceImpl extends ServiceImpl<JlaccountMapper, JlPromoti
         for (int i=1;i<50;i++) {
             List<Map<String, Object>> list = getAssetLinkFromHttp(params, i);
             linkList.addAll(list);
-            if (list.size() != 100) {
+            if (list.size() == 0) {
                 break;
             }
         }
@@ -809,7 +814,7 @@ public class JlaccountServiceImpl extends ServiceImpl<JlaccountMapper, JlPromoti
         for (int i=1;i<50;i++) {
             List<Map<String, Object>> list = getProductInfoFromHttp(params, advertiser_id, i);
             productList.addAll(list);
-            if (list.size() != 100) {
+            if (list.size() == 0) {
                 break;
             }
         }
@@ -825,9 +830,24 @@ public class JlaccountServiceImpl extends ServiceImpl<JlaccountMapper, JlPromoti
         }
 
         getUpdateMicroApp(params);
+        try {
+            LOGGER.info("线程暂停10秒");
+            Thread.sleep(15000);
+        } catch (InterruptedException e) {
+            LOGGER.info("线程被中断");
+            Thread.currentThread().interrupt(); // 重新设置中断状态，以便调用者可以知道发生了中断
+        }
         String microLink = getMicroLink(params);
         params.put("microLink", microLink);
-        return createDpaProduct(params);
+        String product_id = createDpaProduct(params);
+        try {
+            LOGGER.info("线程暂停10秒");
+            Thread.sleep(30000);
+        } catch (InterruptedException e) {
+            LOGGER.info("线程被中断");
+            Thread.currentThread().interrupt(); // 重新设置中断状态，以便调用者可以知道发生了中断
+        }
+        return product_id;
     }
 
     /**
