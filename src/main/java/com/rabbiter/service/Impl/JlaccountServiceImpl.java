@@ -254,7 +254,7 @@ public class JlaccountServiceImpl extends ServiceImpl<JlaccountMapper, JlPromoti
                 .encode(StandardCharsets.UTF_8)
                 .build()
                 .toUri();
-        String newName  = params.get("book_name").toString()
+        String newName  = dealBookName(params.get("book_name").toString())
                 + UUID.randomUUID().toString().substring(0, 8);
         params.put("name", newName);
 
@@ -290,15 +290,17 @@ public class JlaccountServiceImpl extends ServiceImpl<JlaccountMapper, JlPromoti
 
                 Map<String, Object> mini_program_info = new HashMap();
                 // 字节小程序调起链接
-                if (null !=params.get("microLink")) {
-                    mini_program_info.put("url", params.get("microLink").toString());
-                } else {
+                if ("1".equals(params.get("radio").toString())) {
                     mini_program_info.put("app_id", "ttb1d2c76f2ee36a0601");
+                } else if ("7".equals(params.get("radio").toString())) {
+                    mini_program_info.put("app_id", "tt7d2a0b97e21cb1a001");
+                }
+
                 String start_path = ((Map<String, String>)params.get("promotion_url")).get("page");
                 mini_program_info.put("start_path", start_path.startsWith("//") ? start_path.substring(1) : start_path);
                 String mini_program_info_params = ((Map<String, String>)params.get("promotion_url")).get("param");
                 mini_program_info.put("params", mini_program_info_params);
-                }
+
                 promotion_materials.put("mini_program_info", mini_program_info);
 
                 promotion_materials.put("call_to_action_buttons", (List<String>)params.get("call_to_action_buttons")); // 行动号召文案，字数限制：[2-6]，数组上限为10
@@ -326,7 +328,12 @@ public class JlaccountServiceImpl extends ServiceImpl<JlaccountMapper, JlPromoti
                 put("source", getSourse(advertiserInfo.get("company").toString()));
 
                 Map<String, String> native_setting = new HashMap();
-                native_setting.put("aweme_id", "81620176915");  //单个授权抖音号id（抖音号推广身份）
+
+                if ("1".equals(params.get("radio").toString())) {//单个授权抖音号id（抖音号推广身份）
+                    native_setting.put("aweme_id", "81620176915");
+                } else if ("7".equals(params.get("radio").toString())) {
+                    native_setting.put("aweme_id", "1037413046");
+                }
                 native_setting.put("anchor_related_type", "AUTO");
                 put("native_setting", native_setting);
 
@@ -396,12 +403,18 @@ public class JlaccountServiceImpl extends ServiceImpl<JlaccountMapper, JlPromoti
         String media_source = param.get("radio").toString();
         String microGame;
         String distributor;
+        String ad_callback_key = "";
         if (media_source.equals("1")) {
             microGame = "抖小";
             distributor = "distributorId_b";
-        } else {
+            ad_callback_key = "全回传";
+        } else if("4".equals(media_source)) {
             microGame = "微小";
             distributor = "distributorId_w";
+        } else {
+            microGame = "免费";
+            distributor = "distributorId_f";
+            ad_callback_key = "番茄iaa-超低";
         }
         Map<String, String> distributorInfo = tomatoMapper.selectDistributorById((String)param.get(distributor)).get(0);
         distributorInfo.put("book_id", param.get("video_id").toString());
@@ -412,7 +425,7 @@ public class JlaccountServiceImpl extends ServiceImpl<JlaccountMapper, JlPromoti
         }
 
         List<Map<String, Object>> ad_callback_config_id_list = tomatoService.getAdCallback(distributorInfo);
-        distributorInfo.put("ad_callback_config_id", getIdFromList(ad_callback_config_id_list, "config_name", "全回传", "config_id"));
+        distributorInfo.put("ad_callback_config_id", getIdFromList(ad_callback_config_id_list, "config_name", ad_callback_key, "config_id"));
         List<Map<String, Object>> recharge_template_id_list = tomatoService.getRechargeTemplate(distributorInfo);
         String creater = param.get("creater").toString();
         for (int i = 0; i < advertiserIdList.size(); i++) {
@@ -420,25 +433,27 @@ public class JlaccountServiceImpl extends ServiceImpl<JlaccountMapper, JlPromoti
             getAvatarSubmit(param);
             Map<String, Object> advertiserInfo= getAdvertiserInfo(param);
             String company = getSourse(advertiserInfo.get("company").toString());
-            String recharge_template_val = ((List<String>)param.get("bid_strategy")).get(i);
-            String bidStrategyVal = Constant.BID_STRATEGY_MAP.get(company).get(recharge_template_val);
+            String bid_strategy = ((List<String>)param.get("bid_strategy")).get(i);
+            String bidStrategyVal = Constant.BID_STRATEGY_MAP.get(company).get(bid_strategy);
             param.put("bidStrategy", bidStrategyVal);
+            param.put("bidStrategyKey", bid_strategy);
             param.put("byte_micro_app_instance_id", bidStrategyVal.split("&")[3]);
             dealAssetAndEvent(param);
             String name = creater + "-" + company + "-" +
-                    videoInfo.get("book_name").toString().replaceAll("[^0-9a-zA-Z\u4e00-\u9fa5]", "") + "-" +
-                    microGame  + "-" + recharge_template_val + "-" + Utils.getTime6_s();
+                    dealBookName(videoInfo.get("book_name").toString()) + "-" +
+                    microGame  + "-" + bid_strategy + "-" + Utils.getTime6_s();
             name = name.replace("，", "").replace(",", "");
             distributorInfo.put("media_source", media_source);
             nameList.add(name);
             distributorInfo.put("promotion_name", name);
             param.put("promotion_name", name);
-            param.put("book_name", videoInfo.get("book_name").toString().replaceAll("[^0-9a-zA-Z\u4e00-\u9fa5]", ""));
+            param.put("book_name", videoInfo.get("book_name").toString());
             distributorInfo.put("advertiser_id", advertiserIdList.get(i));
             updateAdvertiser(param, distributorInfo);
             distributorInfo.put("price", bidStrategyVal.split("&")[2]);
-            distributorInfo.put("recharge_template_id", getIdFromList(recharge_template_id_list, "recharge_template_name", recharge_template_val, "recharge_template_id"));
+            distributorInfo.put("recharge_template_id", getIdFromList(recharge_template_id_list, "recharge_template_name", bid_strategy, "recharge_template_id"));
             distributorInfo.put("start_chapter", param.get("start_chapter").toString());
+            distributorInfo.put("radio", media_source);
             Map<String, Object> promotionInfo = tomatoService.createPromotion(distributorInfo);
             if ("4000".equals(promotionInfo.get("code").toString())) {
                 result.put("message", promotionInfo.get("message").toString());
@@ -450,9 +465,9 @@ public class JlaccountServiceImpl extends ServiceImpl<JlaccountMapper, JlPromoti
             param.put("promotion_url", getParamFromUrl(promotionInfo.get("promotion_url").toString()));
 
             param.put("creater", creater);
-            for(int x=0; x< Integer.parseInt(param.get("project_number").toString()); x++) {
+            for(int x=0; x < Integer.parseInt(param.get("project_number").toString()); x++) {
                 param.put("time", Utils.getTime9());
-                String projectId = createProject(param, advertiserInfo, bidStrategyVal);
+                String projectId = createProject(param, advertiserInfo, bidStrategyVal, bid_strategy);
                 if(StringUtils.isEmpty(projectId)) {
                     continue;
                 }
@@ -469,7 +484,7 @@ public class JlaccountServiceImpl extends ServiceImpl<JlaccountMapper, JlPromoti
         return result;
     }
 
-    private String createProject(Map<String, Object> params, Map<String, Object> advertiserInfo, String bidStrategyVal) {
+    private String createProject(Map<String, Object> params, Map<String, Object> advertiserInfo, String bidStrategyVal, String bid_strategy) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set("Access-Token", params.get("accessToken").toString());
@@ -479,7 +494,7 @@ public class JlaccountServiceImpl extends ServiceImpl<JlaccountMapper, JlPromoti
                 .build()
                 .toUri();
         String advertiserId = advertiserInfo.get("id").toString();
-        String name = params.get("book_name").toString()
+        String name = dealBookName(params.get("book_name").toString())
                 + UUID.randomUUID().toString().substring(0, 8);
         params.put("name", name);
         Map<String, Object> body = new HashMap() {
@@ -495,10 +510,20 @@ public class JlaccountServiceImpl extends ServiceImpl<JlaccountMapper, JlPromoti
                 delivery_setting.put("bid_type", "CUSTOM");
                 delivery_setting.put("budget_mode", "BUDGET_MODE_DAY");
                 delivery_setting.put("schedule_type", "SCHEDULE_FROM_NOW");
-                delivery_setting .put("budget", 9999999.99);
-                delivery_setting .put("deep_bid_type", "ROI_COEFFICIENT");
-                delivery_setting .put("cpa_bid", Double.parseDouble(bidStrategyVal.split("&")[0]));
-                delivery_setting .put("roi_goal", Double.parseDouble(bidStrategyVal.split("&")[1]));
+                if ("1".equals(params.get("radio").toString())) {//单个授权抖音号id（抖音号推广身份）
+                    delivery_setting .put("budget", 9999999.99);
+                    delivery_setting .put("cpa_bid", Double.parseDouble(bidStrategyVal.split("&")[0]));
+                    delivery_setting .put("deep_bid_type", "ROI_COEFFICIENT");
+                    delivery_setting .put("roi_goal", Double.parseDouble(bidStrategyVal.split("&")[1]));
+                } else if ("7".equals(params.get("radio").toString())) {
+                    delivery_setting .put("budget", 300);
+                    if ("ROI".equals(bid_strategy)) {
+                        delivery_setting .put("deep_bid_type", "ROI_COEFFICIENT");
+                        delivery_setting .put("roi_goal", Double.parseDouble(bidStrategyVal.split("&")[1]));
+                    } else {
+                        delivery_setting .put("cpa_bid", Double.parseDouble(bidStrategyVal.split("&")[0]));
+                    }
+                }
                 put("delivery_setting",delivery_setting);
 
                 Map<String, Object> related_product = new HashMap<>();
@@ -518,14 +543,27 @@ public class JlaccountServiceImpl extends ServiceImpl<JlaccountMapper, JlPromoti
                     put("micro_promotion_type", "BYTE_APP");
                     put("micro_app_instance_id", Long.parseLong(params.get("byte_micro_app_instance_id").toString()));
                     optimize_goal.put("asset_ids", new Long[]{getAssets(params, advertiserId)});//getAssets_test
-                } else {
+                    optimize_goal.put("external_action", "AD_CONVERT_TYPE_PAY");
+                    optimize_goal.put("deep_external_action", "AD_CONVERT_TYPE_PURCHASE_ROI");
+                    optimize_goal.put("external_actions", new int[]{14});
+                } else if (params.get("radio").toString().equals("4")) {
                     put("micro_promotion_type", "WECHAT_APP");
                     put("micro_app_instance_id", Long.parseLong(params.get("wechat_micro_app_instance_id").toString()));
-                }
+                    optimize_goal.put("external_action", "");
+                    optimize_goal.put("deep_external_action", "");
+                    optimize_goal.put("external_actions", new int[]{14});
+                }  else {
+                    put("micro_promotion_type", "BYTE_APP");
+                    put("micro_app_instance_id", Long.parseLong(params.get("byte_micro_app_instance_id").toString()));
+                    optimize_goal.put("asset_ids", new Long[]{getAssets(params, advertiserId)});//getAssets_test
+                    optimize_goal.put("external_action", "AD_CONVERT_TYPE_GAME_ADDICTION");
 
-                optimize_goal.put("external_action", "AD_CONVERT_TYPE_PAY");
-                optimize_goal.put("deep_external_action", "AD_CONVERT_TYPE_PURCHASE_ROI");
-                optimize_goal.put("external_actions", new int[]{14});
+                    if ("ROI".equals(bid_strategy)) {
+                        optimize_goal.put("external_action", "AD_CONVERT_TYPE_ACTIVE");
+                        optimize_goal.put("deep_external_action", "AD_CONVERT_TYPE_LT_ROI");
+                        optimize_goal.put("external_actions", new int[]{8});
+                    }
+                }
                 put("optimize_goal",optimize_goal);
 
                 Map<String, Object> audience  = new HashMap<>();
@@ -569,6 +607,10 @@ public class JlaccountServiceImpl extends ServiceImpl<JlaccountMapper, JlPromoti
         } catch (Exception e) {
             LOGGER.info(e.getMessage());
         }
+    }
+
+    private String dealBookName(String bookname) {
+        return bookname.replaceAll("[^0-9a-zA-Z\u4e00-\u9fa5]", "");
     }
 
     @Override
@@ -802,7 +844,7 @@ public class JlaccountServiceImpl extends ServiceImpl<JlaccountMapper, JlPromoti
         }
 
         for (Map<String, Object> linkInfo : linkList) {
-            if (params.get("book_name").toString().equals(linkInfo.get("link_remark").toString())) {
+            if (dealBookName(params.get("book_name").toString()).equals(linkInfo.get("link_remark").toString())) {
                 return linkInfo.get("link").toString();
             }
         }
@@ -831,18 +873,19 @@ public class JlaccountServiceImpl extends ServiceImpl<JlaccountMapper, JlPromoti
 
         getUpdateMicroApp(params);
         try {
-            LOGGER.info("线程暂停10秒");
-            Thread.sleep(15000);
+            LOGGER.info("线程暂停5秒");
+            Thread.sleep(5000);
         } catch (InterruptedException e) {
             LOGGER.info("线程被中断");
             Thread.currentThread().interrupt(); // 重新设置中断状态，以便调用者可以知道发生了中断
         }
+
         String microLink = getMicroLink(params);
         params.put("microLink", microLink);
         String product_id = createDpaProduct(params);
         try {
-            LOGGER.info("线程暂停10秒");
-            Thread.sleep(30000);
+            LOGGER.info("线程暂停60秒");
+            Thread.sleep(60000);
         } catch (InterruptedException e) {
             LOGGER.info("线程被中断");
             Thread.currentThread().interrupt(); // 重新设置中断状态，以便调用者可以知道发生了中断
@@ -856,7 +899,7 @@ public class JlaccountServiceImpl extends ServiceImpl<JlaccountMapper, JlPromoti
      * @param params:Args in JSON format
      * @return Response in JSON format
      */
-    private void getUpdateMicroApp(Map<String, Object> params){
+    private String getUpdateMicroApp(Map<String, Object> params){
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set("Access-Token", params.get("accessToken").toString());
@@ -877,7 +920,7 @@ public class JlaccountServiceImpl extends ServiceImpl<JlaccountMapper, JlPromoti
                 app_page.put("operate_type", "NEW");
                 app_page.put("start_page", "pages/theatre/index");
                 app_page.put("start_param", ((Map<String, String>)params.get("promotion_url")).get("param"));
-                app_page.put("remark", params.get("book_name").toString());
+                app_page.put("remark", dealBookName(params.get("book_name").toString()));
                 app_page_list.add(app_page);
                 put("app_page",app_page_list);
 
@@ -893,6 +936,7 @@ public class JlaccountServiceImpl extends ServiceImpl<JlaccountMapper, JlPromoti
         ResponseEntity<Map> response = restTemplate.exchange(
                 uri, HttpMethod.POST, requestEntity, Map.class
         );
+        return response.getBody().toString();
     }
 
     /**
@@ -961,7 +1005,6 @@ public class JlaccountServiceImpl extends ServiceImpl<JlaccountMapper, JlPromoti
         ResponseEntity<Map> response = restTemplate.exchange(
                 uri, HttpMethod.GET, requestEntity, Map.class
         );
-
         return  ((Map<String, List<Map<String, Object>>>)response.getBody().get("data")).get("list");
     }
 
@@ -1034,8 +1077,8 @@ public class JlaccountServiceImpl extends ServiceImpl<JlaccountMapper, JlPromoti
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
         body.add("advertiser_id", Long.parseLong(params.get("advertiser_id").toString()));
         try {
-            File file= new File("/etc/image/" + params.get("image").toString());
-//            File file= new ClassPathResource("image/" + params.get("image").toString()).getFile();
+//            File file= new File("/etc/image/" + params.get("image").toString());
+            File file= new ClassPathResource("image/" + params.get("image").toString()).getFile();
             body.add("image_file", new FileSystemResource(file)); // 添加文件
         } catch (Exception e) {
             e.printStackTrace();
@@ -1069,8 +1112,8 @@ public class JlaccountServiceImpl extends ServiceImpl<JlaccountMapper, JlPromoti
         body.add("advertiser_id", Long.parseLong(params.get("advertiser_id").toString()));
         body.add("upload_type", "UPLOAD_BY_FILE");
         try {
-            File file= new File("/etc/image/" +  params.get("image").toString());
-//            File file= new ClassPathResource("image/" + params.get("image").toString()).getFile();
+//            File file= new File("/etc/image/" +  params.get("image").toString());
+            File file= new ClassPathResource("image/" + params.get("image").toString()).getFile();
             body.add("image_signature", Utils.getFileMD5(file));
             body.add("image_file", new FileSystemResource(file)); // 添加文件
         } catch (Exception e) {
@@ -1135,7 +1178,12 @@ public class JlaccountServiceImpl extends ServiceImpl<JlaccountMapper, JlPromoti
                 put("asset_type", "MINI_PROGRAME");
 
                 Map<String, Object> mini_program_asset = new HashMap<>();
-                mini_program_asset.put("mini_program_id", "ttb1d2c76f2ee36a0601");
+                if ("1".equals(params.get("radio").toString())) {
+                    mini_program_asset.put("mini_program_id", "ttb1d2c76f2ee36a0601");
+                } else if ("7".equals(params.get("radio").toString())) {
+                    mini_program_asset.put("mini_program_id", "tt7d2a0b97e21cb1a001");
+                }
+
                 mini_program_asset.put("mini_program_name", "鸣宜剧场");
                 mini_program_asset.put("instance_id", Long.parseLong(params.get("byte_micro_app_instance_id").toString()));
                 mini_program_asset .put("mini_program_type", "BYTE_APP");
@@ -1178,7 +1226,15 @@ public class JlaccountServiceImpl extends ServiceImpl<JlaccountMapper, JlPromoti
             {
                 put("advertiser_id", Long.parseLong(params.get("advertiser_id").toString()));
                 put("asset_id", Long.parseLong(params.get("asset_id").toString()));
-                put("event_id", 14);
+                if ("1".equals(params.get("radio").toString())) {
+                    put("event_id", 14);
+                } else if ("7".equals(params.get("radio").toString())) {
+                    if ("ROI".equals(params.get("bidStrategyKey").toString())) {
+                        put("event_id", 8);
+                    } else {
+                        put("event_id", 25);
+                    }
+                }
                 put("track_types", new String[]{"MINI_PROGRAME_API"});
             }
         };
@@ -1195,15 +1251,26 @@ public class JlaccountServiceImpl extends ServiceImpl<JlaccountMapper, JlPromoti
             {
                 put("advertiser_id", Long.parseLong(params.get("advertiser_id").toString()));
                 put("asset_id", Long.parseLong(params.get("asset_id").toString()));
-                put("event_id", 160);
+                if ("1".equals(params.get("radio").toString())) {
+                    put("event_id", 160);
+                } else if ("7".equals(params.get("radio").toString())) {
+                    put("event_id", 110);
+                }
                 put("track_types", new String[]{"MINI_PROGRAME_API"});
             }
         };
         requestEntity = new HttpEntity<>(body, headers);
 
-        response = restTemplate.exchange(
+        if ("1".equals(params.get("radio").toString())) {
+            response = restTemplate.exchange(
                 uri, HttpMethod.POST, requestEntity, Map.class
-        );
+            );
+        } else if ("7".equals(params.get("radio").toString()) && "ROI".equals(params.get("bidStrategyKey").toString())) {
+            response = restTemplate.exchange(
+                    uri, HttpMethod.POST, requestEntity, Map.class
+            );
+        }
+//
         return "";
     }
 
@@ -1297,6 +1364,14 @@ public class JlaccountServiceImpl extends ServiceImpl<JlaccountMapper, JlPromoti
                 product_info.put("first_category_id", "2019");
                 product_info.put("sub_category_id", "201912");
                 product_info.put("third_category_id", "20191201");
+                if ("7".equals(params.get("radio").toString())) {
+                    product_info.put("first_category", "单剧目");
+                    product_info.put("sub_category", "其他剧情");
+                    product_info.put("third_category", "其他");
+                    product_info.put("first_category_id", "2038");
+                    product_info.put("sub_category_id", "203807");
+                    product_info.put("third_category_id", "20380701");
+                }
 
                 Map<String, Object> price_info = new HashMap<>();
                 price_info .put("price", 2);
@@ -1313,7 +1388,10 @@ public class JlaccountServiceImpl extends ServiceImpl<JlaccountMapper, JlPromoti
                 profession .put("playlet_num", "50");
                 profession .put("playlet_duration", "2");
                 profession .put("start_pay_playlet", "10");
-                profession .put("membership_types", "5");
+                profession .put("membership_types", "2");
+                if ("7".equals(params.get("radio").toString())) {
+                    profession .put("starting_unlock_episode", "8");
+                }
                 product_info.put("profession", profession);
                 put("product_info", product_info);
             }

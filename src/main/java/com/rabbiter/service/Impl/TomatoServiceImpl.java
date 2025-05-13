@@ -94,8 +94,11 @@ public class TomatoServiceImpl extends ServiceImpl<TomatoMapper, TomatoPromotion
                 "?sign={sign}&distributor_id={distributor_id}&ts={ts}&media_source={media_source}" +
                 "&index={index}&book_id={book_id}&promotion_name={promotion_name}" +
                 "&ad_callback_config_id={ad_callback_config_id}" +
-                "&recharge_template_id={recharge_template_id}" +
+
                 "&pack_strategy_status={pack_strategy_status}&start_chapter={start_chapter}&price={price}";
+        if (!"7".equals(params.get("radio").toString())) {
+            url += "&recharge_template_id={recharge_template_id}";
+        }
         String distributor_id = params.get("distributor_id");
         Long ts = Instant.now().getEpochSecond();
         String sign = Utils.calculateMD5(distributor_id + params.get("secret_key") + ts);
@@ -110,7 +113,9 @@ public class TomatoServiceImpl extends ServiceImpl<TomatoMapper, TomatoPromotion
                 put("media_source", 1);
                 put("promotion_name", params.get("promotion_name"));
                 put("ad_callback_config_id", Long.parseLong(params.get("ad_callback_config_id")));
-                put("recharge_template_id", Long.parseLong(params.get("recharge_template_id")));
+                if (!"7".equals(params.get("radio").toString())) {
+                    put("recharge_template_id", Long.parseLong(params.get("recharge_template_id")));
+                }
                 put("pack_strategy_status", 1);
                 put("start_chapter", Integer.parseInt(params.get("start_chapter")));
                 put("price", params.get("price"));

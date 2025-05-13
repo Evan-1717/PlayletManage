@@ -81,6 +81,10 @@ public class User implements Serializable {
     @ApiModelProperty(value = "抖音分销商")
     private String distributor_b;
 
+    @ExcelProperty("免费分销商")
+    @ApiModelProperty(value = "免费分销商")
+    private String distributor_f;
+
     @ExcelProperty("分销商")
     @ApiModelProperty(value = "分销商")
     private String jlaccount;
@@ -219,5 +223,13 @@ public class User implements Serializable {
 
     public void setJlaccount(String jlaccount) {
         this.jlaccount = jlaccount;
+    }
+
+    public String getDistributor_f() {
+        return distributor_f;
+    }
+
+    public void setDistributor_f(String distributor_f) {
+        this.distributor_f = distributor_f;
     }
 }

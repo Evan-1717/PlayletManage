@@ -860,7 +860,7 @@ public class JlaccountController {
         // 构建带参数的 URI
         URI uri = UriComponentsBuilder.fromHttpUrl("https://ad.oceanengine.com/open_api/2/event_manager/available_events/get/")
                 .queryParam("advertiser_id", params.get("advertiser_id"))
-                .queryParam("asset_id", "1831263424525322")
+                .queryParam("asset_id", "1831940553564168")
                 .encode(StandardCharsets.UTF_8)
                 .build()
                 .toUri();

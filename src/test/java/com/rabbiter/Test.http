@@ -14,7 +14,7 @@ Content-Type: application/json
 
 {
   "appid": "1830365792890956",
-  "authcode": "4b5fbd37a6e13a6802c7eecc3b7c2b794ab13c38",
+  "authcode": "0fd4f61abb25ad26fa41f25b3bb7df7efb3cf959",
   "secret": "d89f8cae68457fff4b954ffb31c633ab9b794f20"
 }
 
@@ -35,7 +35,7 @@ Content-Type: application/json
 
 {
   "appid": "1830365792890956",
-  "refreshtoken": "df339c47b0ec12f8436a946aaafa939c6916c7de",
+  "refreshtoken": "2dd519b7b69bcd2c47676bb9f6318cf48450696e",
   "secret": "d89f8cae68457fff4b954ffb31c633ab9b794f20"
 }
 
@@ -107,8 +107,8 @@ POST http://localhost:8002/api/jlaccount/getPromotion
 Content-Type: application/json
 
 {
-  "access_token": "70837b2e7de85ae396b3b6f4f94bb9d28e443db8",
-  "advertiser_id" : "1829468454821898"
+  "access_token": "b51a7ae199ddf51a92c78c06e83da74515508297",
+  "advertiser_id" : "1828375816639556"
 }
 
 ###
@@ -138,8 +138,8 @@ POST http://localhost:8002/api/jlaccount/getAvailables_test
 Content-Type: application/json
 
 {
-  "access_token": "e134836bf440406bffbbd67bcb942b38ded37ab8",
-  "advertiser_id" : "1830643839405063"
+  "access_token": "1177cc7ac70dd6bf713437aea9531504fd4948b3",
+  "advertiser_id" : "1827709880869188"
 }
 
 ###
@@ -158,8 +158,8 @@ POST http://localhost:8002/api/jlaccount/getProject_test
 Content-Type: application/json
 
 {
-  "access_token": "e134836bf440406bffbbd67bcb942b38ded37ab8",
-  "advertiser_id" : "1829468454821898"
+  "access_token": "b51a7ae199ddf51a92c78c06e83da74515508297",
+  "advertiser_id" : "1828375816639556"
 }
 
 ###
@@ -269,8 +269,8 @@ POST http://localhost:8002/api/jlaccount/getAvailableEvents_test
 Content-Type: application/json
 
 {
-  "access_token": "e134836bf440406bffbbd67bcb942b38ded37ab8",
-  "advertiser_id" : "1830643928627204"
+  "access_token": "6d65bd9d250a89c88cd845e2e339f4c902adff41",
+  "advertiser_id" : "1827737161788811"
 }
 
 ###
