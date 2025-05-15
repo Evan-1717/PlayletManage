@@ -19,7 +19,7 @@
         <result column="distributor_w" property="distributor_w" jdbcType="VARCHAR" javaType="String"/>
         <result column="distributor_b" property="distributor_b" jdbcType="VARCHAR" javaType="String"/>
         <result column="distributor_f" property="distributor_f" jdbcType="VARCHAR" javaType="String"/>
-        <result column="jlaccount" property="jlaccount" jdbcType="VARCHAR" javaType="String"/>
+        <result column="jlaccount" property="jlaccount"  javaType="java.util.List" typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
         <result column="hiredate" property="hiredate" jdbcType="VARCHAR" javaType="String"/>
     </resultMap>
 

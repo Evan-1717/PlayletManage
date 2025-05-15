@@ -144,103 +144,6 @@ public class JlaccountServiceImpl extends ServiceImpl<JlaccountMapper, JlPromoti
         return accountInfo.get("accesstoken");
     }
 
-
-    public static JSONObject getAdvertiserFundDailyStat(String advertiser_id, String start_date, String end_date, String access_token) {
-        // 请求地址
-        String open_api_url_prefix = "https://ad.oceanengine.com/open_api/2/";
-        String uri = "advertiser/fund/daily_stat/";
-
-        // 请求参数
-        Map data = new HashMap() {
-            {
-                put("advertiser_id", advertiser_id);
-                put("start_date", start_date);
-                put("end_date", end_date);
-                put("page", 1);
-                put("page_size", 1000);
-            }
-        };
-
-        // 构造请求
-        HttpEntityEnclosingRequestBase httpEntity = new HttpEntityEnclosingRequestBase() {
-            @Override
-            public String getMethod() {
-                return "GET";
-            }
-        };
-
-        httpEntity.setHeader("Access-Token", access_token);
-
-        CloseableHttpResponse response = null;
-        CloseableHttpClient client = null;
-
-        try {
-            client = HttpClientBuilder.create().build();
-            httpEntity.setURI(URI.create(open_api_url_prefix + uri));
-            httpEntity.setEntity(new StringEntity(JSONObject.toJSONString(data), ContentType.APPLICATION_JSON));
-
-            response = client.execute(httpEntity);
-            if (response != null && response.getStatusLine().getStatusCode() == 200) {
-                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
-                StringBuffer result = new StringBuffer();
-                String line = "";
-                while ((line = bufferedReader.readLine()) != null) {
-                    result.append(line);
-                }
-                bufferedReader.close();
-                return JSONObject.parseObject(result.toString());
-            }
-
-        } catch (ClientProtocolException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (response != null) {
-                    response.close();
-                }
-                client.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return null;
-    }
-
-
-    public List<String> getProject(Map<String, String> params){
-        String accessToken = getJlaccount(params.get("jlaccount"));
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set("Access-Token", accessToken);
-
-        // 构建带参数的 URI
-        URI uri = UriComponentsBuilder.fromHttpUrl("https://api.oceanengine.com/open_api/v3.0/project/list/")
-                .queryParam("advertiser_id", params.get("advertiser_id"))
-                .encode(StandardCharsets.UTF_8)
-                .build()
-                .toUri();
-
-        // 封装请求实体
-        HttpEntity<String> requestEntity = new HttpEntity<>(null, headers);
-
-        // 发送请求
-        ResponseEntity<Map> response = restTemplate.exchange(
-                uri, HttpMethod.GET, requestEntity, Map.class
-        );
-        List<Map<String, Object>> responseList = new ArrayList<>();
-        // 处理响应
-        if (response.getStatusCode() == HttpStatus.OK) {
-            responseList = ((Map<String, List<Map<String, Object>>>)response.getBody().get("data")).get("list");
-        }
-        List<String> resultList = new ArrayList<>();
-        for (Map<String, Object> map : responseList) {
-            resultList.add(map.get("project_id").toString());
-        }
-        return resultList;
-    }
-
     public Map<String, String> createPromotion(Map<String, Object> params, String projectId,
                                                Map<String, Object> advertiserInfo){
 
@@ -649,7 +552,14 @@ public class JlaccountServiceImpl extends ServiceImpl<JlaccountMapper, JlPromoti
                     result.append(line);
                 }
                 bufferedReader.close();
-                return ((List<Map<String, Object>>)(JSONObject.parseObject(Utils.decodeUnicode(result.toString())).get("data"))).get(0);
+                if ("0".equals(JSONObject.parseObject(Utils.decodeUnicode(result.toString())).get("code").toString())) {
+                    return ((List<Map<String, Object>>)(JSONObject.parseObject(Utils.decodeUnicode(result.toString())).get("data"))).get(0);
+                } else {
+                    Map<String, Object> res = new HashMap<>();
+                    res.put("message", "主体" + params.get("jlaccount").toString() + "与账户" + params.get("advertiser_id").toString() + "不匹配");
+                    return res;
+                }
+
             }
         } catch (ClientProtocolException e) {
             e.printStackTrace();
@@ -696,38 +606,47 @@ public class JlaccountServiceImpl extends ServiceImpl<JlaccountMapper, JlPromoti
         Map<String, Object> result = new HashMap<>();
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set("Access-Token", getJlaccount(params.get("jlaccount").toString()));
-        String url = "https://ad.oceanengine.com/open_api/2/file/material/bind/";
-        List<String> video_list = new ArrayList<>();
-        params.put("advertiser_id", params.get("videoAdvertiser_id"));
-        List<Map<String, Object>> videoInfoList = getVideoList(params);
-        for (Map<String, Object> videoInfo : videoInfoList) {
-            video_list.add(videoInfo.get("id").toString());
-        }
-
-        List<Long> advertiser_ids = new ArrayList<>();
-        for (String advertiser_id :(List<String>)params.get("advertiser_ids")) {
-            advertiser_ids.add(Long.parseLong(advertiser_id));
-        }
-
-        Map param = new HashMap() {
-            {
-                put("advertiser_id", Long.parseLong(params.get("videoAdvertiser_id").toString()));
-                put("target_advertiser_ids", advertiser_ids);
-                put("video_ids", video_list);
+        List<String> subjectList = (List<String>)params.get("subject");
+        List<Map<String, Object>> videoInfoList = null;
+        for (String subject : subjectList) {
+            headers.set("Access-Token", getJlaccount(subject));
+            String url = "https://ad.oceanengine.com/open_api/2/file/material/bind/";
+            List<String> video_list = new ArrayList<>();
+            params.put("advertiser_id", params.get("subjectvideo1"));
+            params.put("jlaccount", subject);
+            videoInfoList = getVideoList(params);
+            for (Map<String, Object> videoInfo : videoInfoList) {
+                video_list.add(videoInfo.get("id").toString());
             }
-        };
-        HttpEntity<Map<String,String>> entity = new HttpEntity<>(param, headers);
-        ResponseEntity<Map> res = restTemplate.exchange(url, HttpMethod.POST, entity, Map.class);
+
+            List<Long> advertiser_ids = new ArrayList<>();
+            for (String advertiser_id :(List<String>)params.get("advertiser_ids")) {
+                advertiser_ids.add(Long.parseLong(advertiser_id));
+            }
+
+            Map param = new HashMap() {
+                {
+                    put("advertiser_id", Long.parseLong(params.get("videoAdvertiser_id").toString()));
+                    put("target_advertiser_ids", advertiser_ids);
+                    put("video_ids", video_list);
+                }
+            };
+            HttpEntity<Map<String,String>> entity = new HttpEntity<>(param, headers);
+            ResponseEntity<Map> res = restTemplate.exchange(url, HttpMethod.POST, entity, Map.class);
+        }
+
         List<Map<String, Object>> minVideoList = new ArrayList<>();
-        for (String advertiser_id :(List<String>)params.get("advertiser_ids")) {
-            params.put("advertiser_id", advertiser_id);
-            List<Map<String, Object>> videoList = getVideoList(params);
-            if (minVideoList.size() == 0) {
-                minVideoList = videoList;
-                continue;
+        for (int i=1; i<=subjectList.size(); i++) {
+            for (String advertiser_id : (List<String>) params.get("advertiser_id" + i + "s")) {
+                params.put("advertiser_id", advertiser_id);
+                params.put("jlaccount", subjectList.get(i-1));
+                List<Map<String, Object>> videoList = getVideoList(params);
+                if (minVideoList.size() == 0) {
+                    minVideoList = videoList;
+                    continue;
+                }
+                minVideoList = dealMinVideoList(minVideoList, videoList);
             }
-            minVideoList = dealMinVideoList(minVideoList, videoList);
         }
         result.put("data", minVideoList);
         result.put("videoSizeMax", videoInfoList.size());
@@ -1077,8 +996,8 @@ public class JlaccountServiceImpl extends ServiceImpl<JlaccountMapper, JlPromoti
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
         body.add("advertiser_id", Long.parseLong(params.get("advertiser_id").toString()));
         try {
-//            File file= new File("/etc/image/" + params.get("image").toString());
-            File file= new ClassPathResource("image/" + params.get("image").toString()).getFile();
+            File file= new File("/etc/image/" + params.get("image").toString());
+//            File file= new ClassPathResource("image/" + params.get("image").toString()).getFile();
             body.add("image_file", new FileSystemResource(file)); // 添加文件
         } catch (Exception e) {
             e.printStackTrace();
@@ -1112,8 +1031,8 @@ public class JlaccountServiceImpl extends ServiceImpl<JlaccountMapper, JlPromoti
         body.add("advertiser_id", Long.parseLong(params.get("advertiser_id").toString()));
         body.add("upload_type", "UPLOAD_BY_FILE");
         try {
-//            File file= new File("/etc/image/" +  params.get("image").toString());
-            File file= new ClassPathResource("image/" + params.get("image").toString()).getFile();
+            File file= new File("/etc/image/" +  params.get("image").toString());
+//            File file= new ClassPathResource("image/" + params.get("image").toString()).getFile();
             body.add("image_signature", Utils.getFileMD5(file));
             body.add("image_file", new FileSystemResource(file)); // 添加文件
         } catch (Exception e) {
