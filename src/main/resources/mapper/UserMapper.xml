@@ -21,6 +21,7 @@
         <result column="distributor_f" property="distributor_f" jdbcType="VARCHAR" javaType="String"/>
         <result column="jlaccount" property="jlaccount"  javaType="java.util.List" typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
         <result column="hiredate" property="hiredate" jdbcType="VARCHAR" javaType="String"/>
+        <result column="batch_permission" property="batch_permission" jdbcType="VARCHAR" javaType="String"/>
     </resultMap>
 
     <!-- 通用查询结果列 -->

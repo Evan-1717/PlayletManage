@@ -98,6 +98,18 @@ public class User implements Serializable {
     @TableField("isValid")
     private String isvalid;
 
+    @ApiModelProperty(value = "批量投放权限")
+    @TableField("batch_permission")
+    private String batch_permission;
+
+    public String getBatch_permission() {
+        return batch_permission;
+    }
+
+    public void setBatch_permission(String batch_permission) {
+        this.batch_permission = batch_permission;
+    }
+
     public Integer getId() {
         return id;
     }

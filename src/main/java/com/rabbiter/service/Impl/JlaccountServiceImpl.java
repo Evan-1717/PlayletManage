@@ -756,10 +756,10 @@ public class JlaccountServiceImpl extends ServiceImpl<JlaccountMapper, JlPromoti
         List<Map<String, Object>> linkList = new ArrayList<>();
         for (int i=1;i<50;i++) {
             List<Map<String, Object>> list = getAssetLinkFromHttp(params, i);
-            linkList.addAll(list);
             if (list.size() == 0) {
                 break;
             }
+            linkList.addAll(list);
         }
 
         for (Map<String, Object> linkInfo : linkList) {
