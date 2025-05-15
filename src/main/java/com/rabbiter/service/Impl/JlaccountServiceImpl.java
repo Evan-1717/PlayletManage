@@ -837,10 +837,10 @@ public class JlaccountServiceImpl extends ServiceImpl<JlaccountMapper, JlPromoti
         List<Map<String, Object>> linkList = new ArrayList<>();
         for (int i=1;i<50;i++) {
             List<Map<String, Object>> list = getAssetLinkFromHttp(params, i);
-            linkList.addAll(list);
             if (list.size() == 0) {
                 break;
             }
+            linkList.addAll(list);
         }
 
         for (Map<String, Object> linkInfo : linkList) {
@@ -1077,8 +1077,8 @@ public class JlaccountServiceImpl extends ServiceImpl<JlaccountMapper, JlPromoti
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
         body.add("advertiser_id", Long.parseLong(params.get("advertiser_id").toString()));
         try {
-//            File file= new File("/etc/image/" + params.get("image").toString());
-            File file= new ClassPathResource("image/" + params.get("image").toString()).getFile();
+            File file= new File("/etc/image/" + params.get("image").toString());
+//            File file= new ClassPathResource("image/" + params.get("image").toString()).getFile();
             body.add("image_file", new FileSystemResource(file)); // 添加文件
         } catch (Exception e) {
             e.printStackTrace();
@@ -1112,8 +1112,8 @@ public class JlaccountServiceImpl extends ServiceImpl<JlaccountMapper, JlPromoti
         body.add("advertiser_id", Long.parseLong(params.get("advertiser_id").toString()));
         body.add("upload_type", "UPLOAD_BY_FILE");
         try {
-//            File file= new File("/etc/image/" +  params.get("image").toString());
-            File file= new ClassPathResource("image/" + params.get("image").toString()).getFile();
+            File file= new File("/etc/image/" +  params.get("image").toString());
+//            File file= new ClassPathResource("image/" + params.get("image").toString()).getFile();
             body.add("image_signature", Utils.getFileMD5(file));
             body.add("image_file", new FileSystemResource(file)); // 添加文件
         } catch (Exception e) {
