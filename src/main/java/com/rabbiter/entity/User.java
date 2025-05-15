@@ -87,7 +87,8 @@ public class User implements Serializable {
 
     @ExcelProperty("分销商")
     @ApiModelProperty(value = "分销商")
-    private String jlaccount;
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private List<String> jlaccount;
 
     @ExcelProperty("入职时间")
     @ApiModelProperty(value = "入职时间")
@@ -217,11 +218,11 @@ public class User implements Serializable {
         this.distributor_b = distributor_b;
     }
 
-    public String getJlaccount() {
+    public List<String> getJlaccount() {
         return jlaccount;
     }
 
-    public void setJlaccount(String jlaccount) {
+    public void setJlaccount(List<String> jlaccount) {
         this.jlaccount = jlaccount;
     }
 
