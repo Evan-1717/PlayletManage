@@ -113,8 +113,13 @@ public class JlaccountController {
 //            res.put("message",e.getMessage());
 //            LOGGER.info("autoCreatePromotion fail,message : " + e.toString());
 //        }
-        Map<String, String> res = jlaccountService.autoCreatePromotion(params);
-        return Result.success(res);
+        List<String> subjectList = (List<String>)params.get("subject");
+        for (String subject : subjectList) {
+            params.put("jlaccount", subject);
+            jlaccountService.autoCreatePromotion(params);
+        }
+
+        return Result.success();
     }
 
     /**
