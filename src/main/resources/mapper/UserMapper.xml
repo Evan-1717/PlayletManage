@@ -46,7 +46,7 @@
     </select>
 
     <select id="getUserList" resultType="java.lang.String">
-        SELECT DISTINCT(name) FROM `user` where role != '离职'
+        SELECT DISTINCT(name) FROM `user`
     </select>
 
     <select id="getRoleList" resultType="java.lang.String">

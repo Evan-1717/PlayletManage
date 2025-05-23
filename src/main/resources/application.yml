@@ -10,4 +10,4 @@ spring:
 
 Logging:
   level:
-    com.rabbiter: debug
+    com.rabbiter: info

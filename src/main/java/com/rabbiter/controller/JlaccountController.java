@@ -2,14 +2,20 @@ package com.rabbiter.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.SerializationUtils;
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.rabbiter.common.QueryPageParam;
 import com.rabbiter.common.Result;
+import com.rabbiter.config.TaskExecutorConfig;
 import com.rabbiter.entity.JlPromotion;
 import com.rabbiter.entity.Jlaccount;
+import com.rabbiter.entity.Promotion;
+import com.rabbiter.entity.Shouzhi;
 import com.rabbiter.service.JlaccountService;
 import com.rabbiter.util.AccessToken;
 import com.rabbiter.util.Utils;
@@ -23,6 +29,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.*;
 import org.springframework.util.LinkedMultiValueMap;
@@ -107,18 +114,15 @@ public class JlaccountController {
      */
     @PostMapping("/autoCreatePromotion")
     private Result autoCreatePromotion(@RequestBody Map<String, Object> params){
-//        try {
-//            jlaccountService.autoCreatePromotion(params);
-//        } catch (Exception e) {
-//            res.put("message",e.getMessage());
-//            LOGGER.info("autoCreatePromotion fail,message : " + e.toString());
-//        }
         List<String> subjectList = (List<String>)params.get("subject");
-        for (String subject : subjectList) {
-            params.put("jlaccount", subject);
-            jlaccountService.autoCreatePromotion(params);
+        for (int i=1; i <= subjectList.size(); i++) {
+            params.put("jlaccount", subjectList.get(i-1));
+            params.put("advertiser_ids", params.get("advertiser_id" + i + "s"));
+            Map<String, Object> copiedMap = SerializationUtils.clone(new HashMap<>(params));
+            int id = jlaccountService.savePromotion(copiedMap);
+            copiedMap.put("id", id);
+            jlaccountService.autoCreatePromotion(copiedMap);
         }
-
         return Result.success();
     }
 
@@ -151,52 +155,32 @@ public class JlaccountController {
      * @author rabbiter
      * @date 2023/1/5 19:43
      */
-    @PostMapping("/listPagePromotion")
-    public Result listPagePromotion(@RequestBody QueryPageParam query){
+    @PostMapping("/listPageAutoPromotion")
+    public Result listPageAutoPromotion(@RequestBody QueryPageParam query){
         HashMap param = query.getParam();
+        String creater = (String)param.get("creater");
+        String date1 = (String)param.get("date1");
+        String date2 = (String)param.get("date2");
+
+        LambdaQueryWrapper<JlPromotion> queryWrapper = new LambdaQueryWrapper<>();
+        if(!StringUtils.isEmpty(creater)){
+            queryWrapper.like(JlPromotion::getCreater, creater);
+        }
+
+        if(!StringUtils.isEmpty(date1)){
+            queryWrapper.ge(JlPromotion::getCreate_time,date1);
+        }
+
+        if(!StringUtils.isEmpty(date2)){
+            queryWrapper.le(JlPromotion::getCreate_time,date2);
+        }
 
         Page<JlPromotion> page = new Page();
         page.setCurrent(query.getPageNum());
         page.setSize(query.getPageSize());
 
-        IPage result = jlaccountService.listPagePromotion(page);
-        return Result.success(result.getRecords(),result.getTotal());
-    }
-
-    /*
-     * 模糊查询：根据输入查询仓库并以分页的形式展示
-     * @author rabbiter
-     * @date 2023/1/5 19:43
-     */
-    @PostMapping("/listPageAutoPromotion")
-    public Result listPageAutoPromotion(@RequestBody QueryPageParam query){
-        HashMap param = query.getParam();
-        List<String> createrList = (List<String>)param.get("creater");
-        List<String> roleList = (List<String>)param.get("role");
-
-        Page<Map<String, String>> page = new Page();
-        page.setCurrent(query.getPageNum());
-        page.setSize(query.getPageSize());
-
-        IPage result = jlaccountService.listPageAutoPromotion(page);
-        return Result.success(result.getRecords(),result.getTotal());
-    }
-
-    /*
-     * 模糊查询：根据输入查询仓库并以分页的形式展示
-     * @author rabbiter
-     * @date 2023/1/5 19:43
-     */
-    @PostMapping("/listPageProject")
-    public Result listPageProject(@RequestBody QueryPageParam query){
-        HashMap param = query.getParam();
-        List<String> createrList = (List<String>)param.get("creater");
-
-        Page<Map<String, String>> page = new Page();
-        page.setCurrent(query.getPageNum());
-        page.setSize(query.getPageSize());
-
-        IPage result = jlaccountService.listPageProject(page);
+        queryWrapper.orderByDesc(JlPromotion::getCreate_time);
+        IPage result = jlaccountService.listPageAutoPromotion(page, queryWrapper);
         return Result.success(result.getRecords(),result.getTotal());
     }
 
@@ -1017,7 +1001,7 @@ public class JlaccountController {
         Map data = new HashMap(){
             {
                 put("advertiser_ids", new Long[] {Long.parseLong(params.get("advertiser_id"))});
-                put("fields", new String[] {"id", "name", "status"});
+                put("fields", new String[] {"id", "name", "status", "company"});
             }
         };
 

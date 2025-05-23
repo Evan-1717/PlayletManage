@@ -1,0 +1,36 @@
+package com.rabbiter.config;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.annotation.AsyncConfigurer;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+
+import java.util.concurrent.Executor;
+import java.util.concurrent.ThreadPoolExecutor;
+
+@Configuration
+@EnableAsync  //开启异步操作
+public class TaskExecutorConfig implements AsyncConfigurer {
+
+    @Bean
+    public Executor asyncPromiseExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        //配置核心线程数
+        executor.setCorePoolSize(32);
+        //配置最大线程数
+        executor.setMaxPoolSize(40);
+        //配置队列大小
+        executor.setQueueCapacity(99999);
+        //配置线程池中的线程的名称前缀
+        executor.setThreadNamePrefix("async-promise-");
+        /**
+         * rejection-policy：当pool已经达到max size的时候，如何处理新任务
+         * CALLER_RUNS：不在新线程中执行任务，而是有调用者所在的线程来执行
+         */
+        executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
+        //初始化执行器
+        executor.initialize();
+        return executor;
+    }
+}

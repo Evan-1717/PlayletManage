@@ -4,10 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
-import com.rabbiter.entity.JlPromotion;
-import com.rabbiter.entity.Jlaccount;
-import com.rabbiter.entity.Shouzhi;
-import com.rabbiter.entity.User;
+import com.rabbiter.entity.*;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -24,16 +21,7 @@ import java.util.Map;
  */
 @Mapper
 public interface JlaccountMapper extends BaseMapper<JlPromotion> {
-
-    IPage listPagePromotion(IPage<JlPromotion> page);
-
-    IPage listPageAutoPromotion(IPage<Map<String, String>> page);
-
-    IPage listPageProject(IPage<Map<String, String>> page);
-
-    void saveJlPromotion(Map<String, Object> map);
-
-    void saveJlProject(Map<String, Object> map);
+    IPage listPageAutoPromotion(IPage<JlPromotion> page, @Param(Constants.WRAPPER) Wrapper wrapper);
 
     void saveJlaccount(Map<String, String> map);
 

@@ -3,9 +3,7 @@ package com.rabbiter.service;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.rabbiter.entity.Tencent;
-import com.rabbiter.entity.Tencent1;
-import com.rabbiter.entity.TomatoPromotion;
+import com.rabbiter.entity.*;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -25,7 +23,7 @@ public interface TomatoService extends IService<TomatoPromotion> {
 
     Map<String, List<Map<String, String>>> getCodeInfo();
 
-    Map<String, Object> getVideoInfo( Map<String, String> params);
+    Map<String, Object> getVideoInfo( Map<String, Object> params);
 
     Map<String, Object>  createPromotion(Map<String, String> params);
 
@@ -33,5 +31,7 @@ public interface TomatoService extends IService<TomatoPromotion> {
 
     List<Map<String, Object>> getAdCallback(Map<String, String> params);
 
-    void savePromotion(Map<String, Object> map);
+    int savePromotion(JlPromotion promotion);
+
+    void updatePromotion(Map<String, Object> map);
 }

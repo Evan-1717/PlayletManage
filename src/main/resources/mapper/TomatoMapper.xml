@@ -44,13 +44,33 @@
         select * from `distributor` where distributor_id = #{distributorId}
     </select>
 
-    <insert id="savePromotion" parameterType="java.util.Map">
-        INSERT INTO automation_promotion (promotion_id, promotion_name, package_name, promotion_url, promotion_http_url,
-        distributor_id, wx_app_package_id, creater, create_time, book_id, media_source,
-        ad_callback_config_id, recharge_template_id, price) VALUES
-            (#{promotion_id}, #{promotion_name}, #{package_name}, #{promotion_url},  #{promotion_http_url},
-            #{distributor_id}, #{wx_app_package_id}, #{creater}, #{create_time}, #{book_id},
-            #{media_source}, #{ad_callback_config_id}, #{recharge_template_id}, #{price})
+    <insert id="savePromotion" parameterType="com.rabbiter.entity.Promotion" useGeneratedKeys="true" keyProperty="id">
+            INSERT INTO automation_promotion (creater, create_time, book_id, book_name, subject, status, project_num, advertising_num, advertiser_num) VALUES
+            (#{promotion.creater}, #{promotion.create_time}, #{promotion.book_id}, #{promotion.book_name}, #{promotion.subject}, '1', #{promotion.project_num}, #{promotion.advertising_num}, #{promotion.advertiser_num} )
     </insert>
+
+    <update id="updatePromotion" parameterType="java.util.Map" >
+         UPDATE `automation_promotion`
+        SET status = #{status}
+        <if test="error_info_json!=null and error_info_json!=''">
+            , error_info = #{error_info_json}
+        </if>
+        <if test="project_info_json!=null and project_info_json!=''">
+            , project_info = #{project_info_json}
+        </if>
+        <if test="advertising_info_json!=null and advertising_info_json!=''">
+            , advertising_info = #{advertising_info_json}
+        </if>
+        <if test="promotion_name_info_json!=null and promotion_name_info_json!=''">
+            , promotion_name_info = #{promotion_name_info_json}
+        </if>
+        <if test="promotion_id_info_json!=null and promotion_id_info_json!=''">
+            , promotion_id_info = #{promotion_id_info_json}
+        </if>
+        <if test="advertiser_id_info_json!=null and advertiser_id_info_json!=''">
+            , advertiser_id_info = #{advertiser_id_info_json}
+        </if>
+        WHERE id = #{id};
+    </update>
 </mapper>
 

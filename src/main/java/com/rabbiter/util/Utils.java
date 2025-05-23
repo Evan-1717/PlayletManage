@@ -7,6 +7,8 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -86,5 +88,11 @@ public class Utils {
         }
         matcher.appendTail(sb);
         return sb.toString();
+    }
+
+    public static void addListInfoToMap(Map<String, Object> map, String key, String value) {
+        List<String> list = (List<String>)map.get(key);
+        list.add(value);
+        map.put(key, list);
     }
 }

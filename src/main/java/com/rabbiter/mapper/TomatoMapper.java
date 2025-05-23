@@ -4,9 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
-import com.rabbiter.entity.Tencent;
-import com.rabbiter.entity.Tencent1;
-import com.rabbiter.entity.TomatoPromotion;
+import com.rabbiter.entity.*;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -32,5 +30,7 @@ public interface TomatoMapper extends BaseMapper<TomatoPromotion> {
 
     List<Map<String, String>> selectDistributorById(@Param("distributorId")String distributorId);
 
-    void savePromotion(Map<String, Object> map);
+    int savePromotion(@Param("promotion") JlPromotion promotion);
+
+    void updatePromotion(Map<String, Object> map);
 }

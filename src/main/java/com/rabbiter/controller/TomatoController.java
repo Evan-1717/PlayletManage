@@ -59,25 +59,13 @@ public class TomatoController {
     }
 
     /*
-     * 检查当日是否重复录入
+     * 获取短剧信息
      * @author rabbiter
      * @date 2023/1/5 19:42
      */
-    @PostMapping("/checkrecord")
-    public Result checkrecord(@RequestBody HashMap<String, String> param){
-        String creater = (String)param.get("creater");
-        String date = (String)param.get("date");
-
-        LambdaQueryWrapper<TomatoPromotion> queryWrapper = new LambdaQueryWrapper<>();
-        if(!StringUtils.isEmpty(creater)){
-            queryWrapper.like(TomatoPromotion::getCreater,creater);
-        }
-        if(!StringUtils.isEmpty(date)){
-            queryWrapper.like(TomatoPromotion::getDate,date);
-        }
-
-        List<TomatoPromotion> result = tomatoService.selectrecord(queryWrapper);
-        return Result.success(result);
+    @PostMapping("/getVideoInfo")
+    public Result getVideoInfo(@RequestBody HashMap<String, Object> param){
+        return Result.success(tomatoService.getVideoInfo(param));
     }
 
     /*

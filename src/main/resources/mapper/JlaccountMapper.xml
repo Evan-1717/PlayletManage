@@ -3,32 +3,30 @@
 <mapper namespace="com.rabbiter.mapper.JlaccountMapper">
 
     <!-- 通用查询映射结果 -->
-    <resultMap id="BaseResultMap" type="com.rabbiter.entity.JlPromotion">
+    <resultMap id="promotionResultMap" type="com.rabbiter.entity.JlPromotion">
         <id column="id" property="id" />
-        <result column="advertiser_id" property="advertiser_id"  jdbcType="VARCHAR" javaType="String"/>
-        <result column="project_id" property="project_id" jdbcType="VARCHAR" javaType="String"/>
-        <result column="name" property="name" jdbcType="VARCHAR" javaType="String"/>
-        <result column="title" property="title" javaType="java.util.List" typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
-        <result column="mini_program_info" property="mini_program_info" jdbcType="VARCHAR" javaType="String"/>
-        <result column="call_to_action_buttons" property="call_to_action_buttons" javaType="java.util.List" typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
-        <result column="external_url_material_list" property="external_url_material_list" javaType="java.util.List" typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
-        <result column="product_info_selling_points" property="product_info_selling_points" javaType="java.util.List" typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
-        <result column="aweme_id" property="aweme_id" jdbcType="VARCHAR" javaType="String"/>
-        <result column="time" property="time" jdbcType="VARCHAR" javaType="String"/>
+        <result column="date" property="date"  jdbcType="VARCHAR" javaType="String"/>
+        <result column="distributor_id" property="distributor_id" jdbcType="VARCHAR" javaType="String"/>
+        <result column="create_time" property="create_time" jdbcType="VARCHAR" javaType="String"/>
         <result column="creater" property="creater" jdbcType="VARCHAR" javaType="String"/>
-        <result column="promotion_id" property="promotion_id" jdbcType="VARCHAR" javaType="String"/>
+        <result column="book_id" property="book_id" jdbcType="VARCHAR" javaType="String"/>
+        <result column="book_name" property="book_name" jdbcType="VARCHAR" javaType="String"/>
+        <result column="status" property="status" jdbcType="VARCHAR" javaType="String"/>
+        <result column="subject" property="subject" jdbcType="VARCHAR" javaType="String"/>
+        <result column="advertising_num" property="advertising_num" jdbcType="VARCHAR" javaType="String"/>
+        <result column="advertiser_num" property="advertiser_num" jdbcType="VARCHAR" javaType="String"/>
+        <result column="project_num" property="project_num" jdbcType="VARCHAR" javaType="String"/>
+        <result column="advertiser_id_info" property="advertiser_id_info" javaType="java.util.List" typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
+        <result column="project_info" property="project_info" javaType="java.util.List" typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
+        <result column="advertising_info" property="advertising_info" javaType="java.util.List" typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
+        <result column="promotion_id_info" property="promotion_id_info" javaType="java.util.List" typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
+        <result column="promotion_name_info" property="promotion_name_info" javaType="java.util.List" typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
+        <result column="error_info" property="error_info" javaType="java.util.List" typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
     </resultMap>
 
-    <select id="listPagePromotion" resultMap="BaseResultMap">
-        select * from `jlpromotion` order by time desc
-    </select>
-
-    <select id="listPageAutoPromotion" resultType="java.util.Map">
-        select * from `automation_promotion` order by create_time desc
-    </select>
-
-    <select id="listPageProject" resultType="java.util.Map">
-        select * from `jlproject` order by time desc
+    <select id="listPageAutoPromotion" resultMap="promotionResultMap">
+        select * from `automation_promotion`
+        ${ew.customSqlSegment}
     </select>
 
     <insert id="saveJlPromotion" parameterType="java.util.Map">
