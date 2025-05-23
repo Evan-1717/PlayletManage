@@ -251,6 +251,7 @@ public class JlaccountServiceImpl extends ServiceImpl<JlaccountMapper, JlPromoti
                 || "图片信息有误".equals(response.getBody().get("message").toString())
                 || "小程序Url legoId请求失败".equals(response.getBody().get("message").toString())
                 || "服务错误，请稍后重试".equals(response.getBody().get("message").toString())
+                || "Too many requests by this developer. Please retry in some time.".equals(response.getBody().get("message").toString())
                 || "Too many requests. Please retry in some time.".equals(response.getBody().get("message").toString())
                 || "授权校验失败，请重试".equals(response.getBody().get("message").toString())) {
             for(int i = 0;i<3;i++) {
