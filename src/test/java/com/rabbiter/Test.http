@@ -14,7 +14,7 @@ Content-Type: application/json
 
 {
   "appid": "1830365792890956",
-  "authcode": "3ed93e77924018376c95af094b616dd7ca64ddf4",
+  "authcode": "90f2764bfab3872af29257cac3eb192119a59d37",
   "secret": "d89f8cae68457fff4b954ffb31c633ab9b794f20"
 }
 
@@ -150,6 +150,26 @@ Content-Type: application/json
 {
   "access_token": "e134836bf440406bffbbd67bcb942b38ded37ab8",
   "advertiser_id" : "1830435021693191"
+}
+
+###
+
+POST http://localhost:8002/api/jlaccount/getVideoAweme
+Content-Type: application/json
+
+{
+  "access_token": "d3ba4dba4bece19be1b01bea2ddeb94a6082d8f1",
+  "advertiser_id" : "1830435049631817"
+}
+
+###
+
+POST http://localhost:8002/api/jlaccount/uploadTask
+Content-Type: application/json
+
+{
+  "access_token": "d3ba4dba4bece19be1b01bea2ddeb94a6082d8f1",
+  "advertiser_id" : "1830435049631817"
 }
 
 ###

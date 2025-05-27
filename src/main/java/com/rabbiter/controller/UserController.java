@@ -17,9 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * <p>
@@ -85,6 +83,7 @@ public class UserController {
      */
     @PostMapping("/save")
     public Result save(@RequestBody User user){
+        dealUserPermission(user);
         return userService.save(user)?Result.success():Result.fail();
     }
 
@@ -95,7 +94,21 @@ public class UserController {
      */
     @PostMapping("/update")
     public Result update(@RequestBody User user){
+        dealUserPermission(user);
         return userService.updateById(user)?Result.success():Result.fail();
+    }
+
+    private void dealUserPermission(User user) {
+        if ("d".equals(user.getBatch_permission())) {
+            user.setDistributor_b("1830267573786713");
+            user.setJlaccount(new ArrayList<>(Arrays.asList(new String[]{"jtduanju9075@163.com", "jtduanju9076@163.com", "jtduanju9077@163.com"})));
+        } else if ("f".equals(user.getBatch_permission())) {
+            user.setDistributor_f("1820577333781620");
+            user.setJlaccount(new ArrayList<>(Arrays.asList(new String[]{"fqmfduanju06@163.com"})));
+        } else if ("p".equals(user.getBatch_permission())) {
+            user.setDistributor_p("1832249089412235");
+            user.setJlaccount(new ArrayList<>(Arrays.asList(new String[]{"jtduanju1903A@163.com"})));
+        }
     }
 
     /*

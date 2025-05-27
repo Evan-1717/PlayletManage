@@ -460,6 +460,75 @@ public class JlaccountController {
      * @param params:Args in JSON format
      * @return Response in JSON format
      */
+    @PostMapping("/getVideoAweme")
+    private String getVideoAweme(@RequestBody Map<String, String> params){
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("Access-Token", params.get("access_token"));
+
+        // 构建带参数的 URI
+        URI uri = UriComponentsBuilder.fromHttpUrl("https://ad.oceanengine.com/open_api/2/file/video/aweme/get/")
+                .queryParam("advertiser_id", Long.parseLong(params.get("advertiser_id")))
+                .queryParam("aweme_id", "81620176915")
+                .encode(StandardCharsets.UTF_8)
+                .build()
+                .toUri();
+
+        // 封装请求实体
+        HttpEntity<String> requestEntity = new HttpEntity<>(null, headers);
+
+        // 发送请求
+        ResponseEntity<Map> response = restTemplate.exchange(
+                uri, HttpMethod.GET, requestEntity, Map.class
+        );
+
+        // 处理响应
+        if (response.getStatusCode() == HttpStatus.OK) {
+            System.out.println("Response: " + response.getBody());
+        }
+        List<Map<String, Map<String, String>>> content = ((List<Map<String, Map<String, String>>>)((Map<String, Object>)response.getBody()).get("data"));
+        return content.toString();
+    }
+
+    /**
+     * 上穿连山云视频
+     *
+     * @param params:Args in JSON format
+     * @return Response in JSON format
+     */
+    @PostMapping("/uploadTask")
+    private String uploadTask(@RequestBody Map<String, String> params){
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("Access-Token", params.get("access_token"));
+
+        String url = "https://api.oceanengine.com/open_api/2/file/upload_task/create/";
+
+        Map param = new HashMap() {
+            {
+                put("account_id", Long.parseLong(params.get("advertiser_id")));
+                put("account_type", "ADVERTISER");
+                put("filename", "连山云测试视频");
+                put("video_url", "https://v26-web.douyinvod.com/e4eb7de7f1dca34057239723a95b29a5/68359a44/video/tos/cn/tos-cn-v-958309/oYQBI5apCaQxMh9IwpiGRCanIVQYrmQErvimv/?a=6383\\u0026ch=26\\u0026cr=3\\u0026dr=0\\u0026lr=all\\u0026cd=0%7C0%7C0%7C3\\u0026br=926\\u0026bt=926\\u0026cs=0\\u0026ds=6\\u0026ft=4TMWc6DnppftrdLv.s~.C_bAja-CInqV~JGc6BIDDZYNAYpHDD~1ThzyCOS~XusZ.\\u0026mime_type=video_mp4\\u0026qs=0\\u0026rc=NDMzPDk5aDo1NDo2NzlmOkBpM3Q0N3c5cml0MzUzNGU0M0BeMDIuYGA1Ni0xLjNeMl8uYSNhXi8xMmRrY2hhLS1kXjBzcw%3D%3D\\u0026btag=c0000e00030000\\u0026cquery=100o_100w_100B_102v_102u\\u0026dy_q=1748332055\\u0026feature_id=136e8d81b95d650c236697554379e663\\u0026l=20250527154734AB0F2780B6B924A7B347");
+            }
+        };
+        HttpEntity<Map<String,String>> entity = new HttpEntity<>(param, headers);
+        ResponseEntity<Map> response = restTemplate.exchange(url, HttpMethod.POST, entity, Map.class);
+
+        // 处理响应
+        if (response.getStatusCode() == HttpStatus.OK) {
+            System.out.println("Response: " + response.getBody());
+        }
+        List<Map<String, Map<String, String>>> content = ((List<Map<String, Map<String, String>>>)((Map<String, Object>)response.getBody()).get("data"));
+        return content.toString();
+    }
+
+    /**
+     * Send GET request
+     *
+     * @param params:Args in JSON format
+     * @return Response in JSON format
+     */
     @PostMapping("/video_cover")
     private List<Map<String, Object>> video_cover(@RequestBody Map<String, String> params){
         HttpHeaders headers = new HttpHeaders();

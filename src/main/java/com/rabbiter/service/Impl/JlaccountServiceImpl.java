@@ -4,6 +4,7 @@ import com.alibaba.excel.EasyExcel;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.SerializationUtils;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -130,7 +131,7 @@ public class JlaccountServiceImpl extends ServiceImpl<JlaccountMapper, JlPromoti
     }
 
     public void createPromotion(Map<String, Object> params, String projectId,
-                                               Map<String, Object> advertiserInfo){
+                                               Map<String, Object> advertiserInfo, int index){
         String accessToken = params.get("accessToken").toString();
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -153,7 +154,13 @@ public class JlaccountServiceImpl extends ServiceImpl<JlaccountMapper, JlPromoti
 //                put("operation", "DISABLE");
                 Map<String, Object> promotion_materials = new HashMap();
                 List<Object> video_material_list = new ArrayList<>();
-                for (String videoId: (List<String>)params.get("video_ids")) {
+                List<String> video_ids;
+                if ("true".equals(params.get("distributeVideo").toString())) {
+                    video_ids = distributeVideo((List<String>)params.get("video_ids"), Integer.parseInt(params.get("jlpromotion_number").toString()), index);
+                } else {
+                    video_ids = (List<String>)params.get("video_ids");
+                }
+                for (String videoId : video_ids) {
                     Map<String, Object> video_material = new HashMap();
                     video_material.put("image_mode", "CREATIVE_IMAGE_MODE_VIDEO_VERTICAL");
                     video_material.put("video_id", videoId);
@@ -249,6 +256,7 @@ public class JlaccountServiceImpl extends ServiceImpl<JlaccountMapper, JlPromoti
                 || "当前绑定商品所属商品库不存在".equals(response.getBody().get("message").toString())
                 || "服务器连接超时，请您稍后重新提交".equals(response.getBody().get("message").toString())
                 || "图片信息有误".equals(response.getBody().get("message").toString())
+                || "建站信息获取为空".equals(response.getBody().get("message").toString())
                 || "小程序Url legoId请求失败".equals(response.getBody().get("message").toString())
                 || "服务错误，请稍后重试".equals(response.getBody().get("message").toString())
                 || "Too many requests by this developer. Please retry in some time.".equals(response.getBody().get("message").toString())
@@ -307,12 +315,16 @@ public class JlaccountServiceImpl extends ServiceImpl<JlaccountMapper, JlPromoti
         List<String> nameList = new ArrayList<>();
 
         String media_source = param.get("radio").toString();
+        String batch_permission = param.get("batch_permission").toString();
         String microGame;
         String distributor;
         String ad_callback_key = "";
         if (media_source.equals("1")) {
             microGame = "抖小";
             distributor = "distributorId_b";
+            if ("p".equals(batch_permission)) {
+                distributor = "distributorId_p";
+            }
             ad_callback_key = "全回传";
         } else if("4".equals(media_source)) {
             microGame = "微小";
@@ -379,7 +391,7 @@ public class JlaccountServiceImpl extends ServiceImpl<JlaccountMapper, JlPromoti
                     param.put("product_info_selling_points", Constant.SELLING_POINTS_LIST);
                     param.put("call_to_action_buttons", Constant.CALL_TO_ACTION_LIST);
                     param.put("time", Utils.getTime9());
-                    createPromotion(param, projectId, advertiserInfo);
+                    createPromotion(param, projectId, advertiserInfo, j);
                 }
                 param.put("status", "2");
                 tomatoService.updatePromotion(param);
@@ -425,8 +437,10 @@ public class JlaccountServiceImpl extends ServiceImpl<JlaccountMapper, JlPromoti
                 if ("1".equals(params.get("radio").toString())) {//单个授权抖音号id（抖音号推广身份）
                     delivery_setting .put("budget", 9999999.99);
                     delivery_setting .put("cpa_bid", Double.parseDouble(bidStrategyVal.split("&")[0]));
-                    delivery_setting .put("deep_bid_type", "ROI_COEFFICIENT");
-                    delivery_setting .put("roi_goal", Double.parseDouble(bidStrategyVal.split("&")[1]));
+                    if ("d".equals(params.get("batch_permission").toString())) {
+                        delivery_setting .put("deep_bid_type", "ROI_COEFFICIENT");
+                        delivery_setting .put("roi_goal", Double.parseDouble(bidStrategyVal.split("&")[1]));
+                    }
                 } else if ("7".equals(params.get("radio").toString())) {
                     delivery_setting .put("budget", Double.parseDouble(bidStrategyVal.split("&")[2]));
                     delivery_setting .put("schedule_time", "111111111111111111111111111111111111111111100001111111111111111111111111111111111111111111100001111111111111111111111111111111111111111111100001111111111111111111111111111111111111111111100001111111111111111111111111111111111111111111100001111111111111111111111111111111111111111111100001111111111111111111111111111111111111111111100001");
@@ -457,7 +471,9 @@ public class JlaccountServiceImpl extends ServiceImpl<JlaccountMapper, JlPromoti
                     put("micro_app_instance_id", Long.parseLong(params.get("byte_micro_app_instance_id").toString()));
                     optimize_goal.put("asset_ids", new Long[]{getAssets(params, advertiserId)});//getAssets_test
                     optimize_goal.put("external_action", "AD_CONVERT_TYPE_PAY");
-                    optimize_goal.put("deep_external_action", "AD_CONVERT_TYPE_PURCHASE_ROI");
+                    if ("d".equals(params.get("batch_permission").toString())) {
+                        optimize_goal.put("deep_external_action", "AD_CONVERT_TYPE_PURCHASE_ROI");
+                    }
                     optimize_goal.put("external_actions", new int[]{14});
                 } else if (params.get("radio").toString().equals("4")) {
                     put("micro_promotion_type", "WECHAT_APP");
@@ -926,7 +942,7 @@ public class JlaccountServiceImpl extends ServiceImpl<JlaccountMapper, JlPromoti
                 return ((Map<String, List<Map<String, Object>>>)json.get("data")).get("list");
             }
             if ("Too many requests by this developer. Please retry in some time.".equals(json.get("message").toString())) {
-                for(int x = 0;x<3;x++) {
+                for(int x = 0;x<5;x++) {
                     try {
                         Thread.sleep(1000);
                     } catch (InterruptedException e) {
@@ -1084,8 +1100,8 @@ public class JlaccountServiceImpl extends ServiceImpl<JlaccountMapper, JlPromoti
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
         body.add("advertiser_id", Long.parseLong(params.get("advertiser_id").toString()));
         try {
-//            File file= new File("/etc/image/" + params.get("image").toString());
-            File file= new ClassPathResource("image/" + params.get("image").toString()).getFile();
+            File file= new File("/etc/image/" + params.get("image").toString());
+//            File file= new ClassPathResource("image/" + params.get("image").toString()).getFile();
             body.add("image_file", new FileSystemResource(file)); // 添加文件
         } catch (Exception e) {
             e.printStackTrace();
@@ -1141,6 +1157,30 @@ public class JlaccountServiceImpl extends ServiceImpl<JlaccountMapper, JlPromoti
             Utils.addListInfoToMap(params, "error_info", "imageAdUpload:" + response.getBody().get("message").toString());
         }
         return "";
+    }
+
+    /**
+     * 设置头像
+     *
+     * @param list:Args in JSON format
+     * @return Response in JSON format
+     */
+    private List<String> distributeVideo(List<String> list, int num, int index){
+        List<String> result = new ArrayList<>();
+        if (list.size() == 0) {
+            return result;
+        }
+        while(list.size() < num) {
+            List<String> subList = list.size() < num-list.size() ? list:list.subList(0, num-list.size());
+            list.addAll(subList);
+        }
+
+        for (int i = 0;i<list.size() ;i++) {
+            if (i%num == 0 && i+index <list.size()) {
+                result.add(list.get(i+index));
+            }
+        }
+        return result;
     }
 
     /**
@@ -1303,7 +1343,7 @@ public class JlaccountServiceImpl extends ServiceImpl<JlaccountMapper, JlPromoti
         };
         requestEntity = new HttpEntity<>(body, headers);
 
-        if ("1".equals(params.get("radio").toString())) {
+        if ("1".equals(params.get("radio").toString()) && "d".equals(params.get("batch_permission").toString())) {
             response = restTemplate.exchange(uri, HttpMethod.POST, requestEntity, Map.class);
             response = retryCreateEvents(response, uri, requestEntity);
             if (!"0".equals(response.getBody().get("code").toString())) {

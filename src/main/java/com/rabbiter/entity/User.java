@@ -85,6 +85,10 @@ public class User implements Serializable {
     @ApiModelProperty(value = "免费分销商")
     private String distributor_f;
 
+    @ExcelProperty("付费分销商")
+    @ApiModelProperty(value = "付费分销商")
+    private String distributor_p;
+
     @ExcelProperty("分销商")
     @ApiModelProperty(value = "分销商")
     @TableField(typeHandler = JacksonTypeHandler.class)
@@ -244,5 +248,13 @@ public class User implements Serializable {
 
     public void setDistributor_f(String distributor_f) {
         this.distributor_f = distributor_f;
+    }
+
+    public String getDistributor_p() {
+        return distributor_p;
+    }
+
+    public void setDistributor_p(String distributor_p) {
+        this.distributor_p = distributor_p;
     }
 }
