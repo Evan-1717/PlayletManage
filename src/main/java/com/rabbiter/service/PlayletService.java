@@ -7,6 +7,7 @@ import com.rabbiter.common.Result;
 import com.rabbiter.entity.Playlet;
 import com.rabbiter.entity.Shouzhi;
 import com.rabbiter.entity.Shouzhi1;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
@@ -21,13 +22,16 @@ import java.util.Map;
  */
 public interface PlayletService extends IService<Playlet> {
     IPage pageCC(IPage<Playlet> page, Wrapper wrapper);
+
     List<Playlet> selectrecord(Wrapper wrapper);
 
     double calculateRecharge (Map<String, String> param);
 
-    Result save(Map<String, String> param);
+    String save(Map<String, String> param);
 
     List<String> getdistributorIdBydistributor(Map<String, String> param);
 
     Map<String, Object> getdistributorIdInfo(Map<String, String> param);
+
+    List<String> exporttopPlaylet(MultipartFile file);
 }

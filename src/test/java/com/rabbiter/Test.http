@@ -14,7 +14,7 @@ Content-Type: application/json
 
 {
   "appid": "1830365792890956",
-  "authcode": "0fd4f61abb25ad26fa41f25b3bb7df7efb3cf959",
+  "authcode": "c257b0baef52643470101811f1e9ba9f9fc6c3e4",
   "secret": "d89f8cae68457fff4b954ffb31c633ab9b794f20"
 }
 
@@ -35,7 +35,7 @@ Content-Type: application/json
 
 {
   "appid": "1830365792890956",
-  "refreshtoken": "2dd519b7b69bcd2c47676bb9f6318cf48450696e",
+  "refreshtoken": "9638f8e67b46db7cb9613cfc942f4747400329fa",
   "secret": "d89f8cae68457fff4b954ffb31c633ab9b794f20"
 }
 
@@ -56,8 +56,8 @@ POST http://localhost:8002/api/jlaccount/getImage
 Content-Type: application/json
 
 {
-  "access_token": "e134836bf440406bffbbd67bcb942b38ded37ab8",
-  "advertiser_id" : "1829455239457027"
+  "access_token": "6a144cfbbac2cb1afce126ee4d8e74920cb4f279",
+  "advertiser_id" : "1816784868360331"
 }
 
 ###
@@ -154,12 +154,83 @@ Content-Type: application/json
 
 ###
 
+POST http://localhost:8002/api/jlaccount/getVideoAweme
+Content-Type: application/json
+
+{
+  "access_token": "d3ba4dba4bece19be1b01bea2ddeb94a6082d8f1",
+  "advertiser_id" : "1830435049631817"
+}
+
+###
+
+POST http://localhost:8002/api/jlaccount/uploadTask
+Content-Type: application/json
+
+{
+  "access_token": "d3ba4dba4bece19be1b01bea2ddeb94a6082d8f1",
+  "advertiser_id" : "1830435049631817"
+}
+
+###
+
+POST http://localhost:8002/api/jlaccount/createSite
+Content-Type: application/json
+
+{
+  "access_token": "6a144cfbbac2cb1afce126ee4d8e74920cb4f279",
+  "advertiser_id" : "1816784868360331"
+}
+
+###
+
+POST http://localhost:8002/api/jlaccount/updateSiteStatus
+Content-Type: application/json
+
+{
+  "access_token": "6a144cfbbac2cb1afce126ee4d8e74920cb4f279",
+  "advertiser_id" : "1816784868360331"
+}
+
+###
+
+POST http://localhost:8002/api/jlaccount/getSiteStatus
+Content-Type: application/json
+
+{
+  "access_token": "136bc18daf1a8b31b1fb790b206d8e203ef41725",
+  "advertiser_id" : "1816783953792139",
+  "site_id" : "7509926613904375862"
+}
+
+###
+
+POST http://localhost:8002/api/jlaccount/getWechatAppletStatus
+Content-Type: application/json
+
+{
+  "access_token": "136bc18daf1a8b31b1fb790b206d8e203ef41725",
+  "advertiser_id" : "1816783953792139"
+}
+
+###
+
+POST http://localhost:8002/api/jlaccount/createWechatApplet_test
+Content-Type: application/json
+
+{
+  "access_token": "ed3dd24419f0fb97b9f6f3990d67f6f110bb5a82",
+  "advertiser_id" : "1816784868360331"
+}
+
+###
+
 POST http://localhost:8002/api/jlaccount/getProject_test
 Content-Type: application/json
 
 {
-  "access_token": "b51a7ae199ddf51a92c78c06e83da74515508297",
-  "advertiser_id" : "1828375816639556"
+  "access_token": "ec23e0a4fc167c861bffdcd8eeb4f066e982fc11",
+  "advertiser_id" : "1832622207797384"
 }
 
 ###
@@ -168,8 +239,8 @@ POST http://localhost:8002/api/jlaccount/advertiser_test
 Content-Type: application/json
 
 {
-  "access_token": "42a4d401237fdbbb7b2cb8dab01252532370578f",
-  "advertiser_id" : "1829456490475595"
+  "access_token": "8a697e38e16498916ba9883a2e45b3d09570e153",
+  "advertiser_id" : "1832088598807818"
 }
 
 ###
@@ -198,8 +269,8 @@ POST http://localhost:8002/api/jlaccount/getAvatarUpload_test
 Content-Type: application/json
 
 {
-  "access_token": "e134836bf440406bffbbd67bcb942b38ded37ab8",
-  "advertiser_id" : "1829468454821898"
+  "access_token": "6a144cfbbac2cb1afce126ee4d8e74920cb4f279",
+  "advertiser_id" : "1816784868360331"
 }
 
 ###
@@ -380,6 +451,87 @@ Content-Type: application/json
 {
   "access_token": "e134836bf440406bffbbd67bcb942b38ded37ab8",
   "advertiser_id" : "1830432400447060"
+}
+
+###
+
+POST http://localhost:8002/api/jlaccount/createUploadTask
+Content-Type: application/json
+
+{
+  "access_token": "aa49ff7266a5848812e541d63435031fd4441251",
+  "advertiser_id" : "1832088604446025"
+}
+
+###
+
+POST http://localhost:8002/api/jlaccount/uploadTaskList
+Content-Type: application/json
+
+{
+  "access_token": "aa49ff7266a5848812e541d63435031fd4441251",
+  "advertiser_id" : "1832088604446025"
+}
+
+###
+
+POST http://localhost:8002/api/pushMaterials/postToObjectName
+Date: GMT Date
+Content-Type: application/json
+
+{
+
+}
+
+###
+
+POST http://localhost:8002/api/material/getUrl_test
+Date: GMT Date
+Content-Type: application/json
+
+{
+
+}
+
+###
+
+POST http://localhost:8002/api/material/pushMaterialTest
+Date: GMT Date
+Content-Type: application/json
+
+{
+
+}
+
+###
+
+POST http://localhost:8002/api/jlaccount/updatePromotionStatus_test
+Content-Type: application/json
+
+{
+  "access_token": "947c9e265b39950772a0c71f92d54869626abc2c",
+  "advertiser_id" : "1832088604446025",
+  "promotion_id" : "7509909034074751030"
+}
+
+###
+
+POST http://localhost:8002/api/jlaccount/updatePromotion_test
+Content-Type: application/json
+
+{
+  "access_token": "947c9e265b39950772a0c71f92d54869626abc2c",
+  "advertiser_id" : "1832088604446025",
+  "promotion_id" : "7509909034074751030"
+}
+
+###
+
+POST http://localhost:8002/api/material/autoPromotionTest
+Content-Type: application/json
+
+{
+
 }
 
 ###

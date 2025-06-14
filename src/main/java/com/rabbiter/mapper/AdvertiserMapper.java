@@ -9,6 +9,7 @@ import com.rabbiter.entity.Shouzhi;
 import com.rabbiter.entity.Shouzhi1;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Map;
@@ -22,6 +23,7 @@ import java.util.Map;
  * @since 2023-01-05
  */
 @Mapper
+@Repository
 public interface AdvertiserMapper extends BaseMapper<AdvertiserCost> {
     IPage pageCC(IPage<AdvertiserCost> page, @Param(Constants.WRAPPER) Wrapper wrapper);
 

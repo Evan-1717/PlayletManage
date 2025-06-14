@@ -30,17 +30,13 @@ public class Playlet implements Serializable {
     @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
 
-    @ApiModelProperty(value = "短剧名称")
-    @ExcelProperty("短剧名称")
-    private String playlet_name;
-
     @ApiModelProperty(value = "短剧ID")
     @ExcelProperty("短剧ID")
     private String playlet_id;
 
-    @ApiModelProperty(value = "上线时间")
-    @ExcelProperty("上线时间")
-    private String release_time;
+    @ApiModelProperty(value = "短剧名称")
+    @ExcelProperty("短剧名称")
+    private String playlet_name;
 
     @ApiModelProperty(value = "简介")
     @ExcelProperty("简介")
@@ -90,10 +86,17 @@ public class Playlet implements Serializable {
     @ExcelProperty("字数")
     private String word_count;
 
+    @ApiModelProperty(value = "投放载体")
+    @ExcelProperty("投放载体")
+    private String carrier;
 
-    @ApiModelProperty(value = "推广次数")
-    @ExcelProperty("推广次数")
-    private String promotion_times;
+    @ApiModelProperty(value = "更新时间")
+    @ExcelProperty("更新时间")
+    private String update_time;
+
+    @ApiModelProperty(value = "上线时间")
+    @ExcelProperty("上线时间")
+    private String release_time;
 
     @Override
     public String toString() {
@@ -114,7 +117,8 @@ public class Playlet implements Serializable {
                 ", start_percentage='" + start_percentage + '\'' +
                 ", thumb_url='" + thumb_url + '\'' +
                 ", word_count='" + word_count + '\'' +
-                ", promotion_times='" + promotion_times + '\'' +
+                ", update_time='" + update_time + '\'' +
+                ", carrier='" + carrier + '\'' +
                 '}';
     }
 
@@ -138,7 +142,16 @@ public class Playlet implements Serializable {
         this.start_percentage=map.getOrDefault("start_percentage", "").toString();
         this.thumb_url=map.getOrDefault("thumb_url", "").toString();
         this.word_count=map.getOrDefault("word_count", "").toString();
-        this.promotion_times="0";
+        this.carrier=map.getOrDefault("carrier", "").toString();
+        this.update_time=map.getOrDefault("update_time", "").toString();
+    }
+
+    public String getCarrier() {
+        return carrier;
+    }
+
+    public void setCarrier(String carrier) {
+        this.carrier = carrier;
     }
 
     public static long getSerialVersionUID() {
@@ -273,11 +286,11 @@ public class Playlet implements Serializable {
         this.word_count = word_count;
     }
 
-    public String getPromotion_times() {
-        return promotion_times;
+    public String getUpdate_time() {
+        return update_time;
     }
 
-    public void setPromotion_times(String promotion_times) {
-        this.promotion_times = promotion_times;
+    public void setUpdate_time(String update_time) {
+        this.update_time = update_time;
     }
 }

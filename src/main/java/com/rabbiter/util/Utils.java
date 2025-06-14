@@ -6,7 +6,11 @@ import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -60,6 +64,11 @@ public class Utils {
         return sdf.format(new Date());
     }
 
+    public static String getTimetz() {
+        String time = ZonedDateTime.now(ZoneId.of("UTC")).toString().substring(0, 19) + "Z";
+        return time.replace("-", "").replace(":", "");
+    }
+
     public static String getTime6() {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         return sdf.format(new Date());
@@ -75,6 +84,11 @@ public class Utils {
         return sdf.format(new Date());
     }
 
+    public static String getTime3_s() {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+        return sdf.format(new Date());
+    }
+
     public static String decodeUnicode(String input) {
         Pattern pattern = Pattern.compile("\\\\u([0-9a-fA-F]{4})");
         Matcher matcher = pattern.matcher(input);
@@ -86,5 +100,11 @@ public class Utils {
         }
         matcher.appendTail(sb);
         return sb.toString();
+    }
+
+    public static void addListInfoToMap(Map<String, Object> map, String key, String value) {
+        List<String> list = (List<String>)map.get(key);
+        list.add(value);
+        map.put(key, list);
     }
 }

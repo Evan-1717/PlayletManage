@@ -73,39 +73,29 @@ public class User implements Serializable {
     @TableField(typeHandler = JacksonTypeHandler.class)
     private List<String> content;
 
-    @ExcelProperty("微信分销商")
-    @ApiModelProperty(value = "微信分销商")
-    private String distributor_w;
-
-    @ExcelProperty("抖音分销商")
-    @ApiModelProperty(value = "抖音分销商")
-    private String distributor_b;
-
-    @ExcelProperty("免费分销商")
-    @ApiModelProperty(value = "免费分销商")
-    private String distributor_f;
-
     @ExcelProperty("分销商")
     @ApiModelProperty(value = "分销商")
-    private String jlaccount;
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private List<String> jlaccount;
 
     @ExcelProperty("入职时间")
     @ApiModelProperty(value = "入职时间")
     private String hiredate;
 
     @ApiModelProperty(value = "是否有效，Y有效，其他无效")
-    @TableField("isValid")
+    @ExcelProperty("isValid")
     private String isvalid;
 
+    @ExcelProperty("分销商")
     @ApiModelProperty(value = "批量投放权限")
-    @TableField("batch_permission")
-    private String batch_permission;
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private List<String> batch_permission;
 
-    public String getBatch_permission() {
+    public List<String> getBatch_permission() {
         return batch_permission;
     }
 
-    public void setBatch_permission(String batch_permission) {
+    public void setBatch_permission(List<String> batch_permission) {
         this.batch_permission = batch_permission;
     }
 
@@ -213,35 +203,11 @@ public class User implements Serializable {
         this.hiredate = hiredate;
     }
 
-    public String getDistributor_w() {
-        return distributor_w;
-    }
-
-    public void setDistributor_w(String distributor_w) {
-        this.distributor_w = distributor_w;
-    }
-
-    public String getDistributor_b() {
-        return distributor_b;
-    }
-
-    public void setDistributor_b(String distributor_b) {
-        this.distributor_b = distributor_b;
-    }
-
-    public String getJlaccount() {
+    public List<String> getJlaccount() {
         return jlaccount;
     }
 
-    public void setJlaccount(String jlaccount) {
+    public void setJlaccount(List<String> jlaccount) {
         this.jlaccount = jlaccount;
-    }
-
-    public String getDistributor_f() {
-        return distributor_f;
-    }
-
-    public void setDistributor_f(String distributor_f) {
-        this.distributor_f = distributor_f;
     }
 }

@@ -20,7 +20,8 @@
         <result column="start_percentage" property="start_percentage" jdbcType="VARCHAR" javaType="String"/>
         <result column="thumb_url" property="thumb_url" jdbcType="VARCHAR" javaType="String"/>
         <result column="word_count" property="word_count" jdbcType="VARCHAR" javaType="String"/>
-        <result column="promotion_times" property="promotion_times" jdbcType="VARCHAR" javaType="String"/>
+        <result column="update_time" property="update_time" jdbcType="VARCHAR" javaType="String"/>
+        <result column="carrier" property="carrier" jdbcType="VARCHAR" javaType="String"/>
     </resultMap>
 
     <select id="pageCC" resultMap="BaseResultMap">
@@ -29,17 +30,33 @@
         ${ew.customSqlSegment}
     </select>
 
-    <select id="selectrecord" resultType="com.rabbiter.entity.Playlet">
+    <update id="clearTable" >
+        DELETE FROM playlet;
+    </update>
+
+    <select id="selectrecord" resultMap="BaseResultMap">
         select *
         from playlet
         ${ew.customSqlSegment}
     </select>
 
+    <select id="selectRecord" resultMap="BaseResultMap" parameterType="java.util.Map">
+        select *
+        from playlet
+        where 1=1
+        <if test="playletName!=null and playletName!=''">
+            and playlet_name = #{playletName}
+        </if>
+        <if test="carrier!=null and carrier!=''">
+            and carrier = #{carrier}
+        </if>
+    </select>
+
     <insert id="savePlaylet" parameterType="com.rabbiter.entity.Playlet">
         INSERT INTO playlet (playlet_name, playlet_id, release_time, abstract_info, author, category, chapter_amount,
-        creation_status, free_chapter_count, genre, length_type, price, start_percentage, thumb_url, word_count, promotion_times) VALUES
+        creation_status, free_chapter_count, genre, length_type, price, start_percentage, thumb_url, word_count, update_time, carrier) VALUES
             (#{playlet_name}, #{playlet_id}, #{release_time}, #{abstract_info}, #{author}, #{category}, #{chapter_amount},
-            #{creation_status}, #{free_chapter_count}, #{genre}, #{length_type}, #{price}, #{start_percentage}, #{thumb_url}, #{word_count}, #{promotion_times})
+            #{creation_status}, #{free_chapter_count}, #{genre}, #{length_type}, #{price}, #{start_percentage}, #{thumb_url}, #{word_count}, #{update_time}, #{carrier})
     </insert>
 
     <select id="calculateRecharge" resultType="java.lang.Double" parameterType="java.util.Map">

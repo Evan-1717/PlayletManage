@@ -243,8 +243,6 @@ public class ShouzhiController {
                 e.printStackTrace();
             }
         }
-
-//        response.reset();
     }
 
 }

@@ -16,12 +16,9 @@
         <result column="isValid" property="isvalid" />
         <result column="location" property="location" javaType="java.util.List" typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
         <result column="content" property="content" javaType="java.util.List" typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
-        <result column="distributor_w" property="distributor_w" jdbcType="VARCHAR" javaType="String"/>
-        <result column="distributor_b" property="distributor_b" jdbcType="VARCHAR" javaType="String"/>
-        <result column="distributor_f" property="distributor_f" jdbcType="VARCHAR" javaType="String"/>
-        <result column="jlaccount" property="jlaccount" jdbcType="VARCHAR" javaType="String"/>
+        <result column="jlaccount" property="jlaccount"  javaType="java.util.List" typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
         <result column="hiredate" property="hiredate" jdbcType="VARCHAR" javaType="String"/>
-        <result column="batch_permission" property="batch_permission" jdbcType="VARCHAR" javaType="String"/>
+        <result column="batch_permission" property="batch_permission"   javaType="java.util.List" typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
     </resultMap>
 
     <!-- 通用查询结果列 -->
@@ -46,7 +43,7 @@
     </select>
 
     <select id="getUserList" resultType="java.lang.String">
-        SELECT DISTINCT(name) FROM `user` where role != '离职'
+        SELECT DISTINCT(name) FROM `user`
     </select>
 
     <select id="getRoleList" resultType="java.lang.String">

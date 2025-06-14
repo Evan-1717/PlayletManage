@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.rabbiter.entity.JlPromotion;
 import com.rabbiter.entity.Jlaccount;
+import com.rabbiter.entity.Promotion;
 import com.rabbiter.entity.User;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.multipart.MultipartFile;
@@ -21,13 +22,11 @@ import java.util.Map;
  * @since 2023-01-02
  */
 public interface JlaccountService extends IService<JlPromotion> {
-    IPage listPagePromotion(IPage<JlPromotion> page);
-
-    IPage listPageAutoPromotion(IPage<Map<String, String>> page);
-
-    IPage listPageProject(IPage<Map<String, String>> page);
+    IPage listPageAutoPromotion(IPage<JlPromotion> page, Wrapper wrapper);
 
     Map<String, String> autoCreatePromotion(Map<String, Object> params);
+
+    int savePromotion(Map<String, Object> param);
 
     Map<String, Object> bindVideo(Map<String, Object> params);
 
@@ -36,4 +35,6 @@ public interface JlaccountService extends IService<JlPromotion> {
     String getJlaccount(String account);
 
     Map<String, Object> getAdvertiserInfo(Map<String, Object> params);
+
+    List<Map<String, Object>> getVideoList(Map<String, Object> params);
 }

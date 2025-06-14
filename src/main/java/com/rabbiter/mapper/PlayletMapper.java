@@ -25,9 +25,13 @@ public interface PlayletMapper extends BaseMapper<Playlet> {
 
     List<Playlet> selectrecord(@Param(Constants.WRAPPER) Wrapper wrapper);
 
+    List<Playlet> selectRecord(Map<String, String> param);
+
     Double calculateRecharge (Map<String, String> param);
 
     int savePlaylet(Playlet playlet);
+
+    void clearTable();
 
     List<String> getdistributorIdBydistributor(Map<String, String> param);
 

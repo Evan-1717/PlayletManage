@@ -7,13 +7,16 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.rabbiter.common.Constant;
 import com.rabbiter.common.QueryPageParam;
 import com.rabbiter.common.Result;
 import com.rabbiter.entity.Playlet;
 import com.rabbiter.service.PlayletService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -56,7 +59,11 @@ public class PlayletController {
      */
     @PostMapping("/save")
     public Result save(@RequestBody Map<String, String> param){
-        return playletService.save(param);
+        String sheetName = param.get("carrier");
+        param.put("distributor_id", Constant.PLAYLET_COUNT.get(sheetName));
+        param.put("secret_key", "gTHDJrzsiUOwepLIv6hq9AZ0nNf2aQCx");
+        param.put("carrier", sheetName);
+        return "success".equals(playletService.save(param)) ? Result.success():Result.fail();
     }
 
     /*
@@ -98,10 +105,15 @@ public class PlayletController {
     @PostMapping("/checkrecord")
     public Result checkrecord(@RequestBody HashMap<String, String> param){
         String playlet_id = (String)param.get("playlet_id");
+        String carrier = param.get("carrier");
 
         LambdaQueryWrapper<Playlet> queryWrapper = new LambdaQueryWrapper<>();
         if(!StringUtils.isEmpty(playlet_id)){
             queryWrapper.like(Playlet::getPlaylet_id,playlet_id);
+        }
+
+        if(!StringUtils.isEmpty(carrier)){
+            queryWrapper.like(Playlet::getCarrier,carrier);
         }
 
         List<Playlet> result = playletService.selectrecord(queryWrapper);
@@ -121,6 +133,7 @@ public class PlayletController {
         String date1 = (String)param.get("date1");
         String date2 = (String)param.get("date2");
         String playlet_name = (String)param.get("playlet_name");
+        String playlet_carrier = (String)param.get("playlet_carrier");
 
         Page<Playlet> page = new Page();
         page.setCurrent(query.getPageNum());
@@ -133,6 +146,10 @@ public class PlayletController {
 
         if(!StringUtils.isEmpty(playlet_name)){
             queryWrapper.like(Playlet::getPlaylet_name,playlet_name);
+        }
+
+        if(!StringUtils.isEmpty(playlet_carrier)){
+            queryWrapper.like(Playlet::getCarrier,playlet_carrier);
         }
 
         if(!StringUtils.isEmpty(date1)){
@@ -161,7 +178,7 @@ public class PlayletController {
         String date1 = (String)param.get("date1");
         String date2 = (String)param.get("date2");
         String playlet_name = (String)param.get("playlet_name");
-
+        String playlet_carrier = (String)param.get("playlet_carrier");
         LambdaQueryWrapper<Playlet> queryWrapper = new LambdaQueryWrapper<>();
         if(!StringUtils.isEmpty(playlet_id)){
             queryWrapper.like(Playlet::getPlaylet_id,playlet_id);
@@ -169,6 +186,10 @@ public class PlayletController {
 
         if(!StringUtils.isEmpty(playlet_name)){
             queryWrapper.like(Playlet::getPlaylet_name,playlet_name);
+        }
+
+        if(!StringUtils.isEmpty(playlet_carrier)){
+            queryWrapper.like(Playlet::getCarrier,playlet_carrier);
         }
 
         if(!StringUtils.isEmpty(date1)){
@@ -187,7 +208,7 @@ public class PlayletController {
         OutputStream os = null;// 取得输出流
         try {
             os = response.getOutputStream();
-            EasyExcel.write(os, Playlet.class).sheet("record").doWrite(result);//sheet()里面的内容是工作簿的名称
+            EasyExcel.write(os, Playlet.class).sheet("抖小").doWrite(result);//sheet()里面的内容是工作簿的名称
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
@@ -223,6 +244,16 @@ public class PlayletController {
     public Result getdistributorIdInfo(@RequestBody Map<String, String> param){
         Map<String, Object> info = playletService.getdistributorIdInfo(param);
         return info.size()>0?Result.success(info):Result.fail();
+    }
+
+    /*
+     * uploadPlaylet
+     * @author rabbiter
+     * @date 2023/1/5 19:42
+     */
+    @PostMapping(value = "/uploadPlaylet")
+    public void exporttopPlaylet(@RequestParam("file") MultipartFile file){
+        List<String> info = playletService.exporttopPlaylet(file);
     }
 
 }
